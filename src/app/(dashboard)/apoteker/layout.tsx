@@ -21,9 +21,9 @@ export default function ApotekerLayout({
     <>
       <AppSidebar
         navItems={navItems}
-        role="Apoteker"
+        role="apoteker"
         userName="Apoteker"
-        userEmail=""
+        userEmail="apoteker@klinik.com"
       />
       <SidebarInset>
         <div className="flex-1 p-6">{children}</div>

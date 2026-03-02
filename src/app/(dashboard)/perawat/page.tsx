@@ -1,60 +1,55 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+"use client";
+
+import { PageHeader } from "@/components/shared/page-header";
+import { StatCard } from "@/components/shared/stat-card";
+import { EmptyState } from "@/components/shared/empty-state";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Users, Clock } from "lucide-react";
 
 export default function PerawatDashboard() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard Perawat</h1>
-        <p className="text-muted-foreground">
-          Kelola pemeriksaan awal pasien
-        </p>
+    <div className="space-y-6 animate-fade-in">
+      <PageHeader
+        title="Dashboard Perawat"
+        description="Kelola pemeriksaan awal pasien"
+      />
+
+      <div className="grid gap-4 sm:grid-cols-3 stagger-children">
+        <StatCard
+          title="Antrian Pasien"
+          value="0"
+          icon={Clock}
+          description="Menunggu pemeriksaan awal"
+          roleColor="perawat"
+        />
+        <StatCard
+          title="Sudah Diperiksa"
+          value="0"
+          icon={Activity}
+          description="Pemeriksaan hari ini"
+          roleColor="perawat"
+        />
+        <StatCard
+          title="Total Pasien"
+          value="0"
+          icon={Users}
+          description="Pasien hari ini"
+          roleColor="perawat"
+        />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Antrian Pasien
-            </CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <CardDescription>Menunggu pemeriksaan awal</CardDescription>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Sudah Diperiksa
-            </CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <CardDescription>Pemeriksaan hari ini</CardDescription>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Pasien</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <CardDescription>Pasien hari ini</CardDescription>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Pasien Menunggu Pemeriksaan</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <EmptyState
+            icon={Activity}
+            title="Tidak Ada Pasien Menunggu"
+            description="Pasien yang siap diperiksa akan muncul di sini."
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,65 +1,65 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+"use client";
+
+import { PageHeader } from "@/components/shared/page-header";
+import { StatCard } from "@/components/shared/stat-card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Pill, Package, AlertTriangle, ShoppingCart } from "lucide-react";
 
 export default function ApotekerDashboard() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard Apoteker</h1>
-        <p className="text-muted-foreground">Kelola resep dan stok obat</p>
+    <div className="space-y-6 animate-fade-in">
+      <PageHeader
+        title="Dashboard Apoteker"
+        description="Kelola resep dan stok obat"
+      />
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 stagger-children">
+        <StatCard
+          title="Resep Masuk"
+          value="0"
+          icon={Pill}
+          description="Resep menunggu diproses"
+          roleColor="apoteker"
+        />
+        <StatCard
+          title="Total Obat"
+          value="0"
+          icon={Package}
+          description="Jenis obat tersedia"
+          roleColor="apoteker"
+        />
+        <StatCard
+          title="Stok Menipis"
+          value="0"
+          icon={AlertTriangle}
+          description="Obat di bawah threshold"
+          roleColor="apoteker"
+        />
+        <StatCard
+          title="Pengadaan"
+          value="0"
+          icon={ShoppingCart}
+          description="Request pending"
+          roleColor="apoteker"
+        />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Resep Masuk</CardTitle>
-            <Pill className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <CardDescription>Resep menunggu diproses</CardDescription>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Obat</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <CardDescription>Jenis obat tersedia</CardDescription>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Stok Menipis</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <CardDescription>Obat di bawah threshold</CardDescription>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pengadaan</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <CardDescription>Request pending</CardDescription>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <AlertTriangle className="h-5 w-5 text-amber-500" />
+            Alert Stok Menipis
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <EmptyState
+            icon={Package}
+            title="Semua Stok Aman"
+            description="Tidak ada obat dengan stok di bawah batas minimum."
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -46,6 +46,6 @@ export const reminderSchema = z.object({
 });
 
 export type VitalSignsInput = z.infer<typeof vitalSignsSchema>;
-export type DiagnosisInput = z.infer<typeof diagnosisSchema>;
+export type DiagnosisInput = z.input<typeof diagnosisSchema>;
 export type ResepInput = z.infer<typeof resepSchema>;
 export type ReminderInput = z.infer<typeof reminderSchema>;

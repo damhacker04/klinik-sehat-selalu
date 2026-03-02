@@ -27,9 +27,9 @@ export default function DokterLayout({
     <>
       <AppSidebar
         navItems={navItems}
-        role="Dokter"
+        role="dokter"
         userName="Dokter"
-        userEmail=""
+        userEmail="dokter@klinik.com"
       />
       <SidebarInset>
         <div className="flex-1 p-6">{children}</div>

@@ -14,10 +14,8 @@ import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   Form,
@@ -27,6 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { KeyRound, MailCheck, ArrowLeft } from "lucide-react";
 
 export default function ResetPasswordPage() {
   const [success, setSuccess] = useState(false);
@@ -62,17 +61,24 @@ export default function ResetPasswordPage() {
 
   if (success) {
     return (
-      <Card>
-        <CardHeader className="text-center">
-          <CardTitle>Email Terkirim</CardTitle>
-          <CardDescription>
-            Silakan cek email Anda untuk link reset password. Link berlaku
-            selama 1 jam.
-          </CardDescription>
+      <Card className="border-0 shadow-xl shadow-black/5">
+        <CardHeader className="text-center pb-2">
+          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950">
+            <MailCheck className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Email Terkirim!
+          </h1>
+          <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+            Kami telah mengirimkan link reset password ke email Anda.
+            Silakan cek inbox dan ikuti petunjuk di email tersebut.
+            Link berlaku selama 1 jam.
+          </p>
         </CardHeader>
-        <CardFooter>
+        <CardFooter className="pt-4 pb-6">
           <Link href="/login" className="w-full">
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full h-11">
+              <ArrowLeft className="h-4 w-4 mr-2" />
               Kembali ke Login
             </Button>
           </Link>
@@ -82,18 +88,22 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <Card>
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Reset Password</CardTitle>
-        <CardDescription>
-          Masukkan email Anda untuk menerima link reset password
-        </CardDescription>
+    <Card className="border-0 shadow-xl shadow-black/5">
+      <CardHeader className="text-center pb-2">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-950">
+          <KeyRound className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight">Reset Password</h1>
+        <p className="text-sm text-muted-foreground">
+          Masukkan email untuk menerima link reset password
+        </p>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+              <div className="flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+                <span className="h-1.5 w-1.5 rounded-full bg-destructive flex-shrink-0" />
                 {error}
               </div>
             )}
@@ -107,6 +117,7 @@ export default function ResetPasswordPage() {
                     <Input
                       type="email"
                       placeholder="email@example.com"
+                      className="h-11"
                       {...field}
                     />
                   </FormControl>
@@ -114,18 +125,24 @@ export default function ResetPasswordPage() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full h-11 text-base font-semibold"
+              disabled={loading}
+            >
               {loading ? "Mengirim..." : "Kirim Link Reset"}
             </Button>
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="text-sm text-center">
-        <p className="w-full text-muted-foreground">
-          <Link href="/login" className="text-primary hover:underline">
-            Kembali ke Login
-          </Link>
-        </p>
+      <CardFooter className="justify-center pb-6">
+        <Link
+          href="/login"
+          className="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Kembali ke Login
+        </Link>
       </CardFooter>
     </Card>
   );

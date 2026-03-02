@@ -1,71 +1,72 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { CreditCard, Receipt, TrendingUp, Clock } from "lucide-react";
+"use client";
+
+import Link from "next/link";
+import { PageHeader } from "@/components/shared/page-header";
+import { StatCard } from "@/components/shared/stat-card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/shared/empty-state";
+import { Button } from "@/components/ui/button";
+import { CreditCard, Receipt, TrendingUp, Clock, Plus } from "lucide-react";
 
 export default function KasirDashboard() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard Kasir</h1>
-        <p className="text-muted-foreground">Kelola pembayaran pasien</p>
+    <div className="space-y-6 animate-fade-in">
+      <PageHeader
+        title="Dashboard Kasir"
+        description="Kelola pembayaran pasien"
+        action={
+          <Link href="/kasir/transaksi">
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Transaksi Baru
+            </Button>
+          </Link>
+        }
+      />
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 stagger-children">
+        <StatCard
+          title="Menunggu Bayar"
+          value="0"
+          icon={Clock}
+          description="Transaksi draft"
+          roleColor="kasir"
+        />
+        <StatCard
+          title="Transaksi Hari Ini"
+          value="0"
+          icon={CreditCard}
+          description="Pembayaran selesai"
+          roleColor="kasir"
+        />
+        <StatCard
+          title="Total Pendapatan"
+          value="Rp 0"
+          icon={TrendingUp}
+          description="Pendapatan hari ini"
+          roleColor="kasir"
+        />
+        <StatCard
+          title="Bukti Bayar"
+          value="0"
+          icon={Receipt}
+          description="Dicetak hari ini"
+          roleColor="kasir"
+        />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Menunggu Bayar
-            </CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <CardDescription>Transaksi draft</CardDescription>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Transaksi Hari Ini
-            </CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <CardDescription>Pembayaran selesai</CardDescription>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Pendapatan
-            </CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Rp 0</div>
-            <CardDescription>Pendapatan hari ini</CardDescription>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Bukti Bayar</CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <CardDescription>Dicetak hari ini</CardDescription>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Transaksi Menunggu Pembayaran</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <EmptyState
+            icon={CreditCard}
+            title="Tidak Ada Transaksi Menunggu"
+            description="Transaksi baru akan muncul setelah pasien selesai diperiksa dan mendapat resep."
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }

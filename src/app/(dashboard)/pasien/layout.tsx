@@ -29,9 +29,9 @@ export default function PasienLayout({
     <>
       <AppSidebar
         navItems={navItems}
-        role="Pasien"
+        role="pasien"
         userName="Pasien"
-        userEmail=""
+        userEmail="pasien@example.com"
       />
       <SidebarInset>
         <div className="flex-1 p-6">{children}</div>

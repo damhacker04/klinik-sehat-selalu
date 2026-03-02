@@ -20,9 +20,9 @@ export default function PerawatLayout({
     <>
       <AppSidebar
         navItems={navItems}
-        role="Perawat"
+        role="perawat"
         userName="Perawat"
-        userEmail=""
+        userEmail="perawat@klinik.com"
       />
       <SidebarInset>
         <div className="flex-1 p-6">{children}</div>

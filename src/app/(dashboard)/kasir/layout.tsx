@@ -20,9 +20,9 @@ export default function KasirLayout({
     <>
       <AppSidebar
         navItems={navItems}
-        role="Kasir"
+        role="kasir"
         userName="Kasir"
-        userEmail=""
+        userEmail="kasir@klinik.com"
       />
       <SidebarInset>
         <div className="flex-1 p-6">{children}</div>

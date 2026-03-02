@@ -13,10 +13,8 @@ import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   Form,
@@ -26,6 +24,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { LogIn } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -53,7 +52,6 @@ export default function LoginPage() {
       return;
     }
 
-    // Get user role for redirect
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -72,16 +70,22 @@ export default function LoginPage() {
   }
 
   return (
-    <Card>
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Klinik Sehat Selalu</CardTitle>
-        <CardDescription>Masuk ke akun Anda</CardDescription>
+    <Card className="border-0 shadow-xl shadow-black/5">
+      <CardHeader className="text-center pb-2">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+          <LogIn className="h-6 w-6 text-primary" />
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight">Selamat Datang</h1>
+        <p className="text-sm text-muted-foreground">
+          Masuk ke akun Klinik Sehat Selalu
+        </p>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+              <div className="flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+                <span className="h-1.5 w-1.5 rounded-full bg-destructive flex-shrink-0" />
                 {error}
               </div>
             )}
@@ -95,6 +99,7 @@ export default function LoginPage() {
                     <Input
                       type="email"
                       placeholder="email@example.com"
+                      className="h-11"
                       {...field}
                     />
                   </FormControl>
@@ -107,31 +112,45 @@ export default function LoginPage() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Password</FormLabel>
+                    <Link
+                      href="/reset-password"
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Lupa password?
+                    </Link>
+                  </div>
                   <FormControl>
-                    <Input type="password" placeholder="********" {...field} />
+                    <Input
+                      type="password"
+                      placeholder="Masukkan password"
+                      className="h-11"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full h-11 text-base font-semibold"
+              disabled={loading}
+            >
               {loading ? "Memproses..." : "Masuk"}
             </Button>
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="flex flex-col gap-2 text-sm text-center">
-        <Link
-          href="/reset-password"
-          className="text-muted-foreground hover:text-primary"
-        >
-          Lupa password?
-        </Link>
-        <p className="text-muted-foreground">
+      <CardFooter className="justify-center pb-6">
+        <p className="text-sm text-muted-foreground">
           Belum punya akun?{" "}
-          <Link href="/register" className="text-primary hover:underline">
-            Daftar
+          <Link
+            href="/register"
+            className="font-semibold text-primary hover:underline"
+          >
+            Daftar Sekarang
           </Link>
         </p>
       </CardFooter>

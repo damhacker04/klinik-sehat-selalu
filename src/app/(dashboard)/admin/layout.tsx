@@ -29,9 +29,9 @@ export default function AdminLayout({
     <>
       <AppSidebar
         navItems={navItems}
-        role="Admin"
-        userName="Admin"
-        userEmail=""
+        role="admin"
+        userName="Administrator"
+        userEmail="admin@klinik.com"
       />
       <SidebarInset>
         <div className="flex-1 p-6">{children}</div>
