@@ -10,7 +10,10 @@ import {
   Heart,
   Shield,
   Users,
+  LayoutDashboard,
 } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
+import { ROLE_DASHBOARD_ROUTES } from "@/lib/constants";
 
 const features = [
   {
@@ -58,7 +61,25 @@ const stats = [
   { value: "4.8", label: "Rating Kepuasan" },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  let dashboardRoute = "/pasien";
+  let userRole = "";
+  if (user) {
+    const { data: account } = await supabase
+      .from("user_accounts")
+      .select("role")
+      .eq("id", user.id)
+      .single<{ role: string }>();
+    const role = account?.role || "pasien";
+    userRole = role;
+    dashboardRoute = ROLE_DASHBOARD_ROUTES[role] || "/pasien";
+  }
+
+  const isLoggedIn = !!user;
+
   return (
     <div className="flex min-h-screen flex-col">
       {/* Navbar */}
@@ -73,14 +94,25 @@ export default function HomePage() {
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/login">
-              <Button variant="ghost" size="sm">
-                Masuk
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button size="sm">Daftar Gratis</Button>
-            </Link>
+            {isLoggedIn ? (
+              <Link href={dashboardRoute}>
+                <Button size="sm" className="gap-2">
+                  <LayoutDashboard className="h-4 w-4" />
+                  Dashboard {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost" size="sm">
+                    Masuk
+                  </Button>
+                </Link>
+                <Link href="/register">
+                  <Button size="sm">Daftar Gratis</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -104,20 +136,31 @@ export default function HomePage() {
               pemeriksaan, hingga pembayaran. Semua dalam satu platform digital.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <Link href="/register">
-                <Button size="lg" className="w-full sm:w-auto text-base px-8">
-                  Mulai Sekarang
-                </Button>
-              </Link>
-              <Link href="/login">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full sm:w-auto text-base px-8"
-                >
-                  Sudah Punya Akun
-                </Button>
-              </Link>
+              {isLoggedIn ? (
+                <Link href={dashboardRoute}>
+                  <Button size="lg" className="w-full sm:w-auto text-base px-8 gap-2">
+                    <LayoutDashboard className="h-5 w-5" />
+                    Buka Dashboard
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link href="/register">
+                    <Button size="lg" className="w-full sm:w-auto text-base px-8">
+                      Mulai Sekarang
+                    </Button>
+                  </Link>
+                  <Link href="/login">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full sm:w-auto text-base px-8"
+                    >
+                      Sudah Punya Akun
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createClient } from "@/lib/supabase/client";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,28 +44,32 @@ export default function RegisterPage() {
     setLoading(true);
     setError(null);
 
-    const supabase = createClient();
-
-    const { error: authError } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-      options: {
-        data: {
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
           nama: data.nama,
           nik: data.nik,
-          role: "pasien",
-        },
-      },
-    });
+        }),
+      });
 
-    if (authError) {
-      setError(authError.message);
+      const result = await res.json();
+
+      if (!res.ok) {
+        setError(result.error || "Terjadi kesalahan saat mendaftar");
+        setLoading(false);
+        return;
+      }
+
+      router.push("/login?registered=true");
+    } catch {
+      setError("Terjadi kesalahan jaringan. Coba lagi.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    router.push("/login?registered=true");
-    setLoading(false);
   }
 
   return (

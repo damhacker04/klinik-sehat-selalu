@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,10 +24,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { LogIn } from "lucide-react";
+import { CheckCircle2, LogIn } from "lucide-react";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const justRegistered = searchParams.get("registered") === "true";
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -47,7 +49,11 @@ export default function LoginPage() {
     });
 
     if (authError) {
-      setError("Email atau password salah");
+      if (authError.message.includes("Email not confirmed")) {
+        setError("Email belum dikonfirmasi. Cek inbox email Anda dan klik link konfirmasi.");
+      } else {
+        setError("Email atau password salah");
+      }
       setLoading(false);
       return;
     }
@@ -83,6 +89,17 @@ export default function LoginPage() {
       <CardContent className="pt-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {justRegistered && !error && (
+              <div className="flex items-start gap-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 p-3 text-sm text-emerald-700 dark:text-emerald-400">
+                <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium">Pendaftaran berhasil!</p>
+                  <p className="text-emerald-600 dark:text-emerald-500 mt-0.5">
+                    Silakan login dengan email dan password yang sudah didaftarkan.
+                  </p>
+                </div>
+              </div>
+            )}
             {error && (
               <div className="flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
                 <span className="h-1.5 w-1.5 rounded-full bg-destructive flex-shrink-0" />
@@ -155,5 +172,13 @@ export default function LoginPage() {
         </p>
       </CardFooter>
     </Card>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

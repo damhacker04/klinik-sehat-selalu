@@ -15,9 +15,11 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import type { LucideIcon } from "lucide-react";
-import { LogOut } from "lucide-react";
+import { Loader2, LogOut } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 export interface NavItem {
@@ -89,7 +91,16 @@ export function AppSidebar({
   userEmail,
 }: AppSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const colors = roleColorMap[role] || roleColorMap.pasien;
+
+  async function handleLogout() {
+    setIsLoggingOut(true);
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
 
   return (
     <Sidebar>
@@ -165,7 +176,7 @@ export function AppSidebar({
         <div className="flex items-center gap-3">
           <Avatar className={cn("h-9 w-9", colors.avatar)}>
             <AvatarFallback className={cn("text-xs font-bold", colors.avatar)}>
-              {userName
+              {(userName || "U")
                 .split(" ")
                 .map((n) => n[0])
                 .join("")
@@ -179,13 +190,18 @@ export function AppSidebar({
               {userEmail}
             </p>
           </div>
-          <Link
-            href="/login"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-50"
             title="Keluar"
           >
-            <LogOut className="h-4 w-4" />
-          </Link>
+            {isLoggingOut ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <LogOut className="h-4 w-4" />
+            )}
+          </button>
         </div>
       </SidebarFooter>
     </Sidebar>

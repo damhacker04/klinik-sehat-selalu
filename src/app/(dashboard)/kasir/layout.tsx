@@ -2,6 +2,7 @@
 
 import { SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar, type NavItem } from "@/components/shared/app-sidebar";
+import { useUser } from "@/hooks/use-user";
 import { Home, Receipt, CreditCard, FileText } from "lucide-react";
 
 const navItems: NavItem[] = [
@@ -16,13 +17,15 @@ export default function KasirLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { userName, userEmail } = useUser();
+
   return (
     <>
       <AppSidebar
         navItems={navItems}
         role="kasir"
-        userName="Kasir"
-        userEmail="kasir@klinik.com"
+        userName={userName}
+        userEmail={userEmail}
       />
       <SidebarInset>
         <div className="flex-1 p-6">{children}</div>

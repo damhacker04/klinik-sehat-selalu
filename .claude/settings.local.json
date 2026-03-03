@@ -30,7 +30,31 @@
       "Bash(\"/c/Program Files/GitHub:*)",
       "Bash(git push origin klinik-sehat-selalu --force)",
       "mcp__Claude_Preview__preview_start",
-      "Bash(where pnpm)"
+      "Bash(where pnpm)",
+      "Bash(where supabase)",
+      "Bash(where npx)",
+      "Bash(where node)",
+      "Bash(npx supabase --version)",
+      "Bash(node --version)",
+      "Bash(node -e \"fetch\\(''https://oluxeawrzhrwsfndcqil.supabase.co/rest/v1/'', {headers: {''apikey'': ''sb_publishable_MSGc-dV5p8E5fBNGOTK6zA_g7uiXlh-''}}\\).then\\(r => {console.log\\(''Status:'', r.status\\); r.headers.forEach\\(\\(v,k\\) => console.log\\(k+'':'', v\\)\\)}\\).catch\\(e => console.error\\(''Error:'', e.message\\)\\)\")",
+      "Bash(npx supabase db push --help)",
+      "Bash(npx supabase db push --db-url \"postgresql://postgres.oluxeawrzhrwsfndcqil:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sdXhlYXdyemhyd3NmbmRjcWlsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjQ2MTE5MSwiZXhwIjoyMDg4MDM3MTkxfQ.XzYpSPduLdh2czqxqH4ZFSSZdECS77QE6pLQmXLWy4M@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres\" --include-all)",
+      "Bash(npx supabase db push --db-url \"postgresql://postgres:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sdXhlYXdyemhyd3NmbmRjcWlsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjQ2MTE5MSwiZXhwIjoyMDg4MDM3MTkxfQ.XzYpSPduLdh2czqxqH4ZFSSZdECS77QE6pLQmXLWy4M@db.oluxeawrzhrwsfndcqil.supabase.co:5432/postgres\" --include-all)",
+      "Bash(node -e \":*)",
+      "Bash(npx next build)",
+      "Bash(where npm.cmd)",
+      "Bash(find \"C:\\\\Projek Saya\\\\klinik-sehat-selalu\\\\.claude\\\\worktrees\\\\wonderful-kalam\\\\src\\\\app\\\\\\(dashboard\\)\" -maxdepth 1 -name \"layout.tsx\")",
+      "Bash(npm run build)",
+      "Bash(npx --yes kill-port 3000)",
+      "Bash(curl -s -X POST \"https://oluxeawrzhrwsfndcqil.supabase.co/auth/v1/signup\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sdXhlYXdyemhyd3NmbmRjcWlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NjExOTEsImV4cCI6MjA4ODAzNzE5MX0.WJqhke8ouHsbKAV9kV2jJLKmiCOcXh7F3ynF62AWSNM\" -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"testuser99@gmail.com\"\",\"\"password\"\":\"\"TestPass123\"\",\"\"data\"\":{\"\"nama\"\":\"\"Test User\"\",\"\"nik\"\":\"\"1234567890123499\"\",\"\"role\"\":\"\"pasien\"\"}}')",
+      "Bash(curl -s -X POST \"https://oluxeawrzhrwsfndcqil.supabase.co/auth/v1/signup\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sdXhlYXdyemhyd3NmbmRjcWlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NjExOTEsImV4cCI6MjA4ODAzNzE5MX0.WJqhke8ouHsbKAV9kV2jVLKmiCOcXh7F3ynF62AWSNM\" -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"testclinic777@gmail.com\"\",\"\"password\"\":\"\"TestPass123\"\",\"\"data\"\":{\"\"nama\"\":\"\"Test Clinic\"\",\"\"nik\"\":\"\"1234567890123777\"\",\"\"role\"\":\"\"pasien\"\"}}')",
+      "Bash(curl -s -X POST \"https://oluxeawrzhrwsfndcqil.supabase.co/auth/v1/token?grant_type=password\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sdXhlYXdyemhyd3NmbmRjcWlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NjExOTEsImV4cCI6MjA4ODAzNzE5MX0.WJqhke8ouHsbKAV9kV2jVLKmiCOcXh7F3ynF62AWSNM\" -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"testclinic777@gmail.com\"\",\"\"password\"\":\"\"TestPass123\"\"}')",
+      "Bash(curl -s http://localhost:3000 -o /dev/null -w \"%{http_code}\")",
+      "Bash(cmd.exe /c \"start /B npm run dev\")",
+      "Bash(curl -s http://127.0.0.1:3000 -o /dev/null -w \"%{http_code}\")",
+      "Bash(claude mcp add --scope project --transport http supabase \"https://mcp.supabase.com/mcp?project_ref=otbspicsukhpvsgrwxej\")",
+      "Bash(node -e \"fetch\\(''https://otbspicsukhpvsgrwxej.supabase.co/auth/v1/health'', {headers: {''apikey'': ''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90YnNwaWNzdWtocHZzZ3J3eGVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MDA5MzQsImV4cCI6MjA4ODA3NjkzNH0.b4FKjqbkU-9kBHG1kyi7QwwOTaZEyvkRBAXeftpwS6M''}}\\).then\\(r => r.json\\(\\)\\).then\\(d => console.log\\(''Auth Health:'', JSON.stringify\\(d\\)\\)\\).catch\\(e => console.error\\(''Error:'', e.message\\)\\)\")",
+      "Bash(node -e \"fetch\\(''https://otbspicsukhpvsgrwxej.supabase.co/rest/v1/user_accounts?select=id,email,role&limit=3'', {headers: {''apikey'': ''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90YnNwaWNzdWtocHZzZ3J3eGVqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjUwMDkzNCwiZXhwIjoyMDg4MDc2OTM0fQ.P2xwXlda60uUdOPdUcKvQmLYRblGNdclnE7nbUSiITE'', ''Authorization'': ''Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90YnNwaWNzdWtocHZzZ3J3eGVqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjUwMDkzNCwiZXhwIjoyMDg4MDc2OTM0fQ.P2xwXlda60uUdOPdUcKvQmLYRblGNdclnE7nbUSiITE''}}\\).then\\(r => r.json\\(\\)\\).then\\(d => console.log\\(''User accounts:'', JSON.stringify\\(d, null, 2\\)\\)\\).catch\\(e => console.error\\(''Error:'', e.message\\)\\)\")"
     ]
   }
 }

@@ -2,6 +2,7 @@
 
 import { SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar, type NavItem } from "@/components/shared/app-sidebar";
+import { useUser } from "@/hooks/use-user";
 import { Home, Pill, Package, AlertTriangle, ShoppingCart } from "lucide-react";
 
 const navItems: NavItem[] = [
@@ -17,13 +18,15 @@ export default function ApotekerLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { userName, userEmail } = useUser();
+
   return (
     <>
       <AppSidebar
         navItems={navItems}
         role="apoteker"
-        userName="Apoteker"
-        userEmail="apoteker@klinik.com"
+        userName={userName}
+        userEmail={userEmail}
       />
       <SidebarInset>
         <div className="flex-1 p-6">{children}</div>
