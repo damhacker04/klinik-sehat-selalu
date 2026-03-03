@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm dlx shadcn@latest init -d)",
+      "Bash(npx --yes shadcn@latest init -d)",
+      "Bash(npx --yes shadcn@latest add button input label card table badge dialog sheet select textarea toast sonner dropdown-menu avatar separator tabs form sidebar)",
+      "Bash(npx shadcn@latest add button input label card table badge dialog sheet select textarea sonner dropdown-menu avatar separator tabs form sidebar)",
+      "Bash(pnpm build)",
+      "Bash(git add package.json pnpm-lock.yaml components.json src/app/globals.css src/app/layout.tsx src/app/page.tsx src/middleware.ts src/app/\\\\\\(auth\\\\\\)/ src/app/\\\\\\(dashboard\\\\\\)/ src/components/ src/hooks/ src/lib/ src/types/ supabase/ .env.local.example)",
+      "Bash(git add -f .env.local.example)",
+      "Bash(git commit:*)",
+      "Bash(git branch -m claude/wonderful-kalam klinik-sehat-selalu)",
+      "Bash(gh auth status)",
+      "Bash(git -C \"/c/Projek Saya/klinik-sehat-selalu\" show --stat HEAD)",
+      "Bash(git -C \"/c/Projek Saya/klinik-sehat-selalu\" show --stat HEAD~1)",
+      "Bash(git -C \"/c/Projek Saya/klinik-sehat-selalu\" reset --hard 73835a1)",
+      "Bash(git -C \"/c/Projek Saya/klinik-sehat-selalu\" update-ref refs/heads/main 73835a1)",
+      "Bash(git -C \"/c/Projek Saya/klinik-sehat-selalu\" log --oneline main -3)",
+      "Bash(git -C \"/c/Projek Saya/klinik-sehat-selalu\" show --stat 73835a1)",
+      "Bash(git -C \"/c/Projek Saya/klinik-sehat-selalu\" log --oneline --all --graph)",
+      "Bash(git rebase --onto 5d06128 --root klinik-sehat-selalu)",
+      "Bash(git checkout -b klinik-sehat-selalu fbb2147)",
+      "Bash(git rebase --onto main --root klinik-sehat-selalu)",
+      "Bash(git push origin main --force)",
+      "Bash(git push -u origin klinik-sehat-selalu)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" auth status)",
+      "Bash(\"/c/Program Files \\(x86\\)/GitHub CLI/gh.exe\" auth status)",
+      "Bash(\"$LOCALAPPDATA/Programs/gh/gh.exe\" auth status)",
+      "Bash(cmd.exe /c \"where gh\")",
+      "Bash(\"/c/Program Files/GitHub:*)",
+      "Bash(git push origin klinik-sehat-selalu --force)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where pnpm)"
+    ]
+  }
+}
