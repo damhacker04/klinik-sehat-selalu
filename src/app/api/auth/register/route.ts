@@ -49,15 +49,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create pasien record linked to the auth user
-    const { error: pasienError } = await supabaseAdmin
+    // Update pasien record created by trigger (adds email if not set)
+    const { error: pasienError } = await (supabaseAdmin as any)
       .from("pasien")
-      .insert({
-        user_id: data.user.id,
-        nama,
-        nik,
-        email,
-      });
+      .update({ email })
+      .eq("user_id", data.user.id);
 
     if (pasienError) {
       console.error("Failed to create pasien record:", pasienError.message);

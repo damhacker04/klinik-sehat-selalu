@@ -11,7 +11,6 @@ export async function GET() {
         const { data, error } = await (supabase as any)
             .from("transaksi")
             .select("*, pasien(nama), rincian_transaksi(*)")
-            .eq("status", "draft")
             .order("id_transaksi", { ascending: false });
 
         if (error) {

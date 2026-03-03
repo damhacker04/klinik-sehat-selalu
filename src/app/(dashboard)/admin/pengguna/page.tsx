@@ -7,7 +7,7 @@ import { DataTable, type Column } from "@/components/shared/data-table";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users } from "lucide-react";
+import { Users, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface UserRow {
@@ -68,6 +68,24 @@ export default function PenggunaPage() {
     }
   }
 
+  async function handleDelete(userId: string, email: string) {
+    if (!confirm(`Yakin ingin menghapus pengguna ${email}?`)) return;
+    try {
+      const res = await fetch(`/api/admin/pengguna?id=${userId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        toast.success("Pengguna berhasil dihapus");
+        fetchData();
+      } else {
+        const err = await res.json();
+        toast.error(err.error || "Gagal menghapus pengguna");
+      }
+    } catch {
+      toast.error("Terjadi kesalahan jaringan");
+    }
+  }
+
   const columns: Column<UserRow>[] = [
     {
       key: "email",
@@ -99,15 +117,25 @@ export default function PenggunaPage() {
       key: "actions",
       header: "Aksi",
       cell: (row) => (
-        <select
-          className="text-sm border rounded px-2 py-1"
-          value={row.role}
-          onChange={(e) => handleChangeRole(row.id, e.target.value)}
-        >
-          {["pasien", "admin", "perawat", "dokter", "apoteker", "kasir"].map((r) => (
-            <option key={r} value={r}>{r}</option>
-          ))}
-        </select>
+        <div className="flex items-center gap-2">
+          <select
+            className="text-sm border rounded px-2 py-1"
+            value={row.role}
+            onChange={(e) => handleChangeRole(row.id, e.target.value)}
+          >
+            {["pasien", "admin", "perawat", "dokter", "apoteker", "kasir"].map((r) => (
+              <option key={r} value={r}>{r}</option>
+            ))}
+          </select>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 w-8 p-0 text-red-600 border-red-200 hover:bg-red-50"
+            onClick={() => handleDelete(row.id, row.email)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       ),
     },
   ];

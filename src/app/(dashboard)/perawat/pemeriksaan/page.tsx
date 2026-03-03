@@ -54,7 +54,8 @@ export default function PemeriksaanPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id_pasien: selectedPatient.form_pendaftaran?.id_pasien,
+          id_pasien: selectedPatient.form_pendaftaran?.id_pasien || null,
+          id_antrian: selectedPatient.id_antrian,
           ...data,
         }),
       });

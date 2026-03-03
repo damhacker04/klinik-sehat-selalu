@@ -69,3 +69,43 @@ export async function PUT(request: NextRequest) {
         );
     }
 }
+
+export async function DELETE(request: NextRequest) {
+    try {
+        const supabase = await createClient();
+        const currentUser = await getAuthUser(supabase);
+        const { searchParams } = new URL(request.url);
+        const userId = searchParams.get("id");
+
+        if (!userId) {
+            return NextResponse.json(
+                { error: "ID pengguna wajib" },
+                { status: 400 }
+            );
+        }
+
+        // Prevent self-deletion
+        if (userId === currentUser.id) {
+            return NextResponse.json(
+                { error: "Tidak dapat menghapus akun sendiri" },
+                { status: 400 }
+            );
+        }
+
+        const { error } = await (supabase as any)
+            .from("user_accounts")
+            .delete()
+            .eq("id", userId);
+
+        if (error) {
+            return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+
+        return NextResponse.json({ message: "Pengguna berhasil dihapus" });
+    } catch (error: any) {
+        return NextResponse.json(
+            { error: error.message || "Server error" },
+            { status: error.message === "Unauthorized" ? 401 : 500 }
+        );
+    }
+}
