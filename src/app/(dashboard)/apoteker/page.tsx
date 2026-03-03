@@ -14,6 +14,15 @@ interface ApotekerStats {
   pengadaanPending: number;
 }
 
+interface ObatItem {
+  id_obat: number;
+  nama_obat: string;
+  stok: number;
+  stok_minimum: number;
+  satuan: string | null;
+  harga: number;
+}
+
 export default function ApotekerDashboard() {
   const [stats, setStats] = useState<ApotekerStats>({
     resepMasuk: 0,
@@ -21,7 +30,7 @@ export default function ApotekerDashboard() {
     stokMenipis: 0,
     pengadaanPending: 0,
   });
-  const [lowStockItems, setLowStockItems] = useState<any[]>([]);
+  const [lowStockItems, setLowStockItems] = useState<ObatItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,7 +44,7 @@ export default function ApotekerDashboard() {
         if (stokRes.ok) {
           const allObat = await stokRes.json();
           const lowStock = (Array.isArray(allObat) ? allObat : []).filter(
-            (o: any) => o.stok <= o.stok_minimum
+            (o: ObatItem) => o.stok <= o.stok_minimum
           );
           setLowStockItems(lowStock);
         }
@@ -102,7 +111,7 @@ export default function ApotekerDashboard() {
             />
           ) : (
             <div className="space-y-3">
-              {lowStockItems.map((item: any) => (
+              {lowStockItems.map((item) => (
                 <div key={item.id_obat} className="flex items-center justify-between rounded-lg border p-4">
                   <div>
                     <p className="font-medium">{item.nama_obat}</p>

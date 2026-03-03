@@ -14,6 +14,14 @@ interface DokterStats {
   kontrolLanjutan: number;
 }
 
+interface AntrianItem {
+  id_rekam: number;
+  tekanan_darah: string | null;
+  suhu: number | null;
+  berat_badan: number | null;
+  pasien?: { nama: string } | null;
+}
+
 export default function DokterDashboard() {
   const [stats, setStats] = useState<DokterStats>({
     antrianPasien: 0,
@@ -21,7 +29,7 @@ export default function DokterDashboard() {
     resepDibuat: 0,
     kontrolLanjutan: 0,
   });
-  const [antrian, setAntrian] = useState<any[]>([]);
+  const [antrian, setAntrian] = useState<AntrianItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -96,7 +104,7 @@ export default function DokterDashboard() {
             />
           ) : (
             <div className="space-y-3">
-              {antrian.map((item: any) => (
+              {antrian.map((item) => (
                 <div key={item.id_rekam} className="flex items-center justify-between rounded-lg border p-4">
                   <div>
                     <p className="font-medium">{item.pasien?.nama || "Pasien"}</p>

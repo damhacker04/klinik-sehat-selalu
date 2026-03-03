@@ -24,6 +24,14 @@ interface PasienStats {
   antrianStatus: string | null;
 }
 
+interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  created_at: string;
+}
+
 export default function PasienDashboard() {
   const [stats, setStats] = useState<PasienStats>({
     totalKunjungan: 0,
@@ -32,7 +40,7 @@ export default function PasienDashboard() {
     nomorAntrian: null,
     antrianStatus: null,
   });
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -127,7 +135,7 @@ export default function PasienDashboard() {
               </div>
             ) : (
               <div className="space-y-3">
-                {notifications.map((notif: any) => (
+                {notifications.map((notif) => (
                   <div key={notif.id} className="flex items-start gap-3 rounded-lg border p-3">
                     <Bell className="h-4 w-4 mt-0.5 text-blue-500" />
                     <div>

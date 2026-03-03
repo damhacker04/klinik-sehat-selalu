@@ -25,14 +25,19 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+interface WeeklyStatItem {
+  hari: string;
+  pasien: number;
+  antrian: number;
+}
+
 interface AdminStats {
   pendingVerifikasi: number;
   antrianHariIni: number;
   pasienHariIni: number;
   pendapatan: number;
+  weeklyStats: WeeklyStatItem[];
 }
-
-const HARI = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats>({
@@ -40,6 +45,7 @@ export default function AdminDashboard() {
     antrianHariIni: 0,
     pasienHariIni: 0,
     pendapatan: 0,
+    weeklyStats: [],
   });
   const [loading, setLoading] = useState(true);
 
@@ -60,14 +66,7 @@ export default function AdminDashboard() {
     fetchStats();
   }, []);
 
-  // Generate weekly chart data — uses today's data for the current day
-  const todayIndex = new Date().getDay(); // 0=Sun
-  const adjustedIndex = todayIndex === 0 ? 6 : todayIndex - 1; // Mon=0
-  const weekData = HARI.map((hari, i) => ({
-    hari,
-    pasien: i === adjustedIndex ? stats.pasienHariIni : 0,
-    antrian: i === adjustedIndex ? stats.antrianHariIni : 0,
-  }));
+  const weekData = stats.weeklyStats.length > 0 ? stats.weeklyStats : [];
 
   return (
     <div className="space-y-6 animate-fade-in">

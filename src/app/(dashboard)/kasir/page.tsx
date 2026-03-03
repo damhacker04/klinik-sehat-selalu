@@ -17,6 +17,13 @@ interface KasirStats {
   buktiHariIni: number;
 }
 
+interface DraftTransaksiItem {
+  id_transaksi: number;
+  total_biaya: number;
+  status: string;
+  pasien?: { nama: string } | null;
+}
+
 export default function KasirDashboard() {
   const [stats, setStats] = useState<KasirStats>({
     menungguBayar: 0,
@@ -24,7 +31,7 @@ export default function KasirDashboard() {
     totalPendapatan: 0,
     buktiHariIni: 0,
   });
-  const [draftTransaksi, setDraftTransaksi] = useState<any[]>([]);
+  const [draftTransaksi, setDraftTransaksi] = useState<DraftTransaksiItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -109,7 +116,7 @@ export default function KasirDashboard() {
             />
           ) : (
             <div className="space-y-3">
-              {draftTransaksi.map((item: any) => (
+              {draftTransaksi.map((item) => (
                 <div key={item.id_transaksi} className="flex items-center justify-between rounded-lg border p-4">
                   <div>
                     <p className="font-medium">{item.pasien?.nama || "Pasien"}</p>

@@ -13,13 +13,23 @@ interface PerawatStats {
   totalPasien: number;
 }
 
+interface PerawatAntrianItem {
+  id_antrian: number;
+  nomor_antrian: number;
+  status: string;
+  form_pendaftaran?: {
+    keluhan: string | null;
+    pasien?: { nama: string } | null;
+  } | null;
+}
+
 export default function PerawatDashboard() {
   const [stats, setStats] = useState<PerawatStats>({
     antrianWaiting: 0,
     sudahDiperiksa: 0,
     totalPasien: 0,
   });
-  const [antrian, setAntrian] = useState<any[]>([]);
+  const [antrian, setAntrian] = useState<PerawatAntrianItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -87,7 +97,7 @@ export default function PerawatDashboard() {
             />
           ) : (
             <div className="space-y-3">
-              {antrian.map((item: any) => (
+              {antrian.map((item) => (
                 <div key={item.id_antrian} className="flex items-center justify-between rounded-lg border p-4">
                   <div>
                     <p className="font-medium">

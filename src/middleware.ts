@@ -73,11 +73,21 @@ export async function middleware(request: NextRequest) {
   // RBAC: Check role-based access
   const { data: account } = await supabase
     .from("user_accounts")
-    .select("role")
+    .select("role, status")
     .eq("id", user.id)
     .single();
 
   const role = account?.role || "pasien";
+  const status = account?.status || "active";
+
+  // Block suspended/inactive users
+  if (status !== "active") {
+    await supabase.auth.signOut();
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("error", "account_suspended");
+    return NextResponse.redirect(url);
+  }
 
   // Check if user has access to the requested route
   const allowedRoutes = roleRouteAccess[role] || [];

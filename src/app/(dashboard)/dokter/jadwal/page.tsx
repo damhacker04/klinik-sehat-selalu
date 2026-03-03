@@ -22,7 +22,7 @@ export default function JadwalDokterPage() {
     useEffect(() => {
         async function fetchJadwal() {
             try {
-                const res = await fetch("/api/admin/jadwal");
+                const res = await fetch("/api/dokter/jadwal");
                 if (res.ok) {
                     const data = await res.json();
                     setJadwal(Array.isArray(data) ? data : []);
