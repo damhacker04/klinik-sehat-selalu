@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Receipt, TrendingUp, Clock, Plus } from "lucide-react";
+import { formatRupiah } from "@/lib/supabase/queries";
 
 interface KasirStats {
   menungguBayar: number;
@@ -47,12 +48,7 @@ export default function KasirDashboard() {
     fetchData();
   }, []);
 
-  const formatRupiah = (amount: number) =>
-    new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
+
 
   return (
     <div className="space-y-6 animate-fade-in">

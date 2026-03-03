@@ -14,6 +14,16 @@ import {
   BarChart3,
   Calendar,
 } from "lucide-react";
+import { formatRupiah } from "@/lib/supabase/queries";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 interface AdminStats {
   pendingVerifikasi: number;
@@ -21,6 +31,8 @@ interface AdminStats {
   pasienHariIni: number;
   pendapatan: number;
 }
+
+const HARI = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats>({
@@ -48,12 +60,14 @@ export default function AdminDashboard() {
     fetchStats();
   }, []);
 
-  const formatRupiah = (amount: number) =>
-    new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
+  // Generate weekly chart data — uses today's data for the current day
+  const todayIndex = new Date().getDay(); // 0=Sun
+  const adjustedIndex = todayIndex === 0 ? 6 : todayIndex - 1; // Mon=0
+  const weekData = HARI.map((hari, i) => ({
+    hari,
+    pasien: i === adjustedIndex ? stats.pasienHariIni : 0,
+    antrian: i === adjustedIndex ? stats.antrianHariIni : 0,
+  }));
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -102,10 +116,42 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-center h-48 rounded-lg bg-muted/50">
-              <p className="text-sm text-muted-foreground">
-                Grafik akan muncul setelah ada data
-              </p>
+            <div className="h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={weekData} barGap={4}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis
+                    dataKey="hari"
+                    tick={{ fontSize: 12 }}
+                    className="fill-muted-foreground"
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fontSize: 12 }}
+                    className="fill-muted-foreground"
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "8px",
+                      border: "1px solid hsl(var(--border))",
+                      backgroundColor: "hsl(var(--card))",
+                      color: "hsl(var(--card-foreground))",
+                    }}
+                  />
+                  <Bar
+                    dataKey="pasien"
+                    name="Pasien Selesai"
+                    fill="hsl(263, 70%, 55%)"
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="antrian"
+                    name="Antrian"
+                    fill="hsl(221, 83%, 55%)"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>

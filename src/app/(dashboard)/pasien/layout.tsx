@@ -10,10 +10,12 @@ import {
   Home,
   MessageSquare,
   Bell,
+  User,
 } from "lucide-react";
 
 const navItems: NavItem[] = [
   { title: "Dashboard", href: "/pasien", icon: Home },
+  { title: "Profil Saya", href: "/pasien/profil", icon: User },
   { title: "Pendaftaran", href: "/pasien/pendaftaran", icon: ClipboardList },
   { title: "Antrian", href: "/pasien/antrian", icon: Clock },
   { title: "Riwayat Medis", href: "/pasien/riwayat", icon: FileText },

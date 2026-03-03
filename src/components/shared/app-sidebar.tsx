@@ -84,6 +84,8 @@ const roleLabelMap: Record<string, string> = {
   kasir: "Kasir",
 };
 
+import { ThemeToggle } from "@/components/shared/theme-toggle";
+
 export function AppSidebar({
   navItems,
   role,
@@ -190,6 +192,7 @@ export function AppSidebar({
               {userEmail}
             </p>
           </div>
+          <ThemeToggle />
           <button
             onClick={handleLogout}
             disabled={isLoggingOut}

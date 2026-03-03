@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/shared/password-input";
 import {
   Card,
   CardContent,
@@ -153,8 +154,7 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
+                      <PasswordInput
                         placeholder="Min 8 karakter"
                         className="h-11"
                         {...field}
@@ -171,8 +171,7 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Konfirmasi</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
+                      <PasswordInput
                         placeholder="Ulangi password"
                         className="h-11"
                         {...field}

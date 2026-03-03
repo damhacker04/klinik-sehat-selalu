@@ -10,6 +10,7 @@ import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 import { ROLE_DASHBOARD_ROUTES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/shared/password-input";
 import {
   Card,
   CardContent,
@@ -139,8 +140,7 @@ function LoginForm() {
                     </Link>
                   </div>
                   <FormControl>
-                    <Input
-                      type="password"
+                    <PasswordInput
                       placeholder="Masukkan password"
                       className="h-11"
                       {...field}
