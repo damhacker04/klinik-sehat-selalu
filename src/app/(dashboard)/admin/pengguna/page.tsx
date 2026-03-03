@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTable, type Column } from "@/components/shared/data-table";
@@ -7,6 +8,7 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Users } from "lucide-react";
+import { toast } from "sonner";
 
 interface UserRow {
   id: string;
@@ -26,47 +28,89 @@ const roleColors: Record<string, string> = {
   kasir: "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300",
 };
 
-const columns: Column<UserRow>[] = [
-  {
-    key: "email",
-    header: "Email",
-    cell: (row) => <span className="font-medium">{row.email}</span>,
-  },
-  {
-    key: "role",
-    header: "Role",
-    cell: (row) => (
-      <Badge variant="outline" className={`capitalize font-medium ${roleColors[row.role] || ""}`}>
-        {row.role}
-      </Badge>
-    ),
-  },
-  {
-    key: "status",
-    header: "Status",
-    cell: (row) => <StatusBadge status={row.status} />,
-  },
-  {
-    key: "created_at",
-    header: "Terdaftar",
-    cell: (row) => (
-      <span className="text-sm text-muted-foreground">{row.created_at}</span>
-    ),
-  },
-  {
-    key: "actions",
-    header: "Aksi",
-    cell: () => (
-      <Button size="sm" variant="outline" className="h-8">
-        Ubah Role
-      </Button>
-    ),
-  },
-];
-
 export default function PenggunaPage() {
-  // TODO: Fetch from Supabase user_accounts
-  const data: UserRow[] = [];
+  const [data, setData] = useState<UserRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  async function fetchData() {
+    try {
+      const res = await fetch("/api/admin/pengguna");
+      if (res.ok) {
+        setData(await res.json());
+      }
+    } catch (err) {
+      console.error("Failed to fetch pengguna:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  async function handleChangeRole(userId: string, newRole: string) {
+    try {
+      const res = await fetch("/api/admin/pengguna", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, role: newRole }),
+      });
+      if (res.ok) {
+        toast.success("Role berhasil diubah");
+        fetchData();
+      } else {
+        const err = await res.json();
+        toast.error(err.error || "Gagal mengubah role");
+      }
+    } catch {
+      toast.error("Terjadi kesalahan jaringan");
+    }
+  }
+
+  const columns: Column<UserRow>[] = [
+    {
+      key: "email",
+      header: "Email",
+      cell: (row) => <span className="font-medium">{row.email}</span>,
+    },
+    {
+      key: "role",
+      header: "Role",
+      cell: (row) => (
+        <Badge variant="outline" className={`capitalize font-medium ${roleColors[row.role] || ""}`}>
+          {row.role}
+        </Badge>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: (row) => <StatusBadge status={row.status} />,
+    },
+    {
+      key: "created_at",
+      header: "Terdaftar",
+      cell: (row) => (
+        <span className="text-sm text-muted-foreground">{row.created_at}</span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Aksi",
+      cell: (row) => (
+        <select
+          className="text-sm border rounded px-2 py-1"
+          value={row.role}
+          onChange={(e) => handleChangeRole(row.id, e.target.value)}
+        >
+          {["pasien", "admin", "perawat", "dokter", "apoteker", "kasir"].map((r) => (
+            <option key={r} value={r}>{r}</option>
+          ))}
+        </select>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -75,7 +119,7 @@ export default function PenggunaPage() {
         description="Lihat dan kelola akun pengguna serta assign role"
       />
 
-      {data.length === 0 ? (
+      {!loading && data.length === 0 ? (
         <EmptyState
           icon={Users}
           title="Belum Ada Pengguna"

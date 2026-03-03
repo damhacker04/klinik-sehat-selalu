@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
+      console.error("Supabase createUser error:", JSON.stringify(error, null, 2));
       // Handle duplicate email
       if (error.message.includes("already been registered") || error.message.includes("already exists")) {
         return NextResponse.json(
@@ -35,10 +36,33 @@ export async function POST(request: NextRequest) {
           { status: 409 }
         );
       }
+      // Handle database trigger errors
+      if (error.message.includes("Database error")) {
+        return NextResponse.json(
+          { error: "Gagal membuat akun. Pastikan tabel database sudah disetup dengan benar (jalankan run-all-migrations.sql di Supabase SQL Editor)." },
+          { status: 500 }
+        );
+      }
       return NextResponse.json(
         { error: error.message },
         { status: 400 }
       );
+    }
+
+    // Create pasien record linked to the auth user
+    const { error: pasienError } = await supabaseAdmin
+      .from("pasien")
+      .insert({
+        user_id: data.user.id,
+        nama,
+        nik,
+        email,
+      });
+
+    if (pasienError) {
+      console.error("Failed to create pasien record:", pasienError.message);
+      // User was created but pasien record failed - still return success
+      // as the user can still log in
     }
 
     return NextResponse.json(

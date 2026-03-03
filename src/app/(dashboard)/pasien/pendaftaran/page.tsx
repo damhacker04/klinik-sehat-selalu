@@ -37,12 +37,26 @@ export default function PendaftaranPage() {
 
   async function onSubmit(data: FormPendaftaranInput) {
     setLoading(true);
-    // TODO: Supabase insert ke form_pendaftaran
-    console.log("Pendaftaran:", data);
-    await new Promise((r) => setTimeout(r, 1000));
-    toast.success("Pendaftaran berhasil dikirim!");
-    setSubmitted(true);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/pasien/pendaftaran", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error(err.error || "Gagal mengirim pendaftaran");
+        return;
+      }
+
+      toast.success("Pendaftaran berhasil dikirim!");
+      setSubmitted(true);
+    } catch {
+      toast.error("Terjadi kesalahan jaringan");
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (submitted) {

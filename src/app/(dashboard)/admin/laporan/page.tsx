@@ -1,11 +1,48 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, CreditCard, DollarSign, BarChart3 } from "lucide-react";
 
+interface LaporanStats {
+  jumlahPasien: number;
+  jumlahTransaksi: number;
+  totalPendapatan: number;
+}
+
 export default function LaporanPage() {
+  const [stats, setStats] = useState<LaporanStats>({
+    jumlahPasien: 0,
+    jumlahTransaksi: 0,
+    totalPendapatan: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await fetch("/api/admin/laporan");
+        if (res.ok) {
+          setStats(await res.json());
+        }
+      } catch (err) {
+        console.error("Failed to fetch laporan:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  const formatRupiah = (amount: number) =>
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(amount);
+
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
@@ -16,21 +53,21 @@ export default function LaporanPage() {
       <div className="grid gap-4 sm:grid-cols-3 stagger-children">
         <StatCard
           title="Jumlah Pasien"
-          value="0"
+          value={loading ? "..." : String(stats.jumlahPasien)}
           icon={Users}
           description="Hari ini"
           roleColor="admin"
         />
         <StatCard
           title="Transaksi"
-          value="0"
+          value={loading ? "..." : String(stats.jumlahTransaksi)}
           icon={CreditCard}
           description="Hari ini"
           roleColor="admin"
         />
         <StatCard
           title="Total Pendapatan"
-          value="Rp 0"
+          value={loading ? "..." : formatRupiah(stats.totalPendapatan)}
           icon={DollarSign}
           description="Hari ini"
           roleColor="admin"

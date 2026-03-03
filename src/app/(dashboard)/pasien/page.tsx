@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
@@ -15,7 +16,46 @@ import {
   ArrowRight,
 } from "lucide-react";
 
+interface PasienStats {
+  totalKunjungan: number;
+  totalFeedback: number;
+  pendaftaranStatus: string | null;
+  nomorAntrian: number | null;
+  antrianStatus: string | null;
+}
+
 export default function PasienDashboard() {
+  const [stats, setStats] = useState<PasienStats>({
+    totalKunjungan: 0,
+    totalFeedback: 0,
+    pendaftaranStatus: null,
+    nomorAntrian: null,
+    antrianStatus: null,
+  });
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [statsRes, notifRes] = await Promise.all([
+          fetch("/api/pasien/stats"),
+          fetch("/api/pasien/notifikasi"),
+        ]);
+        if (statsRes.ok) setStats(await statsRes.json());
+        if (notifRes.ok) {
+          const data = await notifRes.json();
+          setNotifications(Array.isArray(data) ? data.slice(0, 3) : []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch pasien data:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
@@ -34,28 +74,28 @@ export default function PasienDashboard() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 stagger-children">
         <StatCard
           title="Status Pendaftaran"
-          value="-"
+          value={loading ? "..." : stats.pendaftaranStatus || "-"}
           icon={ClipboardList}
-          description="Belum ada pendaftaran aktif"
+          description={stats.pendaftaranStatus ? `Status: ${stats.pendaftaranStatus}` : "Belum ada pendaftaran aktif"}
           roleColor="pasien"
         />
         <StatCard
           title="Nomor Antrian"
-          value="-"
+          value={loading ? "..." : stats.nomorAntrian ? String(stats.nomorAntrian) : "-"}
           icon={Clock}
-          description="Tidak dalam antrian"
+          description={stats.antrianStatus || "Tidak dalam antrian"}
           roleColor="pasien"
         />
         <StatCard
           title="Riwayat Kunjungan"
-          value="0"
+          value={loading ? "..." : String(stats.totalKunjungan)}
           icon={FileText}
           description="Total kunjungan"
           roleColor="pasien"
         />
         <StatCard
           title="Feedback"
-          value="0"
+          value={loading ? "..." : String(stats.totalFeedback)}
           icon={MessageSquare}
           description="Feedback diberikan"
           roleColor="pasien"
@@ -78,12 +118,26 @@ export default function PasienDashboard() {
             </Link>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <Bell className="h-10 w-10 text-muted-foreground/30 mb-3" />
-              <p className="text-sm text-muted-foreground">
-                Belum ada notifikasi
-              </p>
-            </div>
+            {notifications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <Bell className="h-10 w-10 text-muted-foreground/30 mb-3" />
+                <p className="text-sm text-muted-foreground">
+                  Belum ada notifikasi
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {notifications.map((notif: any) => (
+                  <div key={notif.id} className="flex items-start gap-3 rounded-lg border p-3">
+                    <Bell className="h-4 w-4 mt-0.5 text-blue-500" />
+                    <div>
+                      <p className="text-sm font-medium">{notif.title}</p>
+                      <p className="text-xs text-muted-foreground">{notif.message}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 

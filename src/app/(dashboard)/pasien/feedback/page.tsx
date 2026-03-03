@@ -7,6 +7,7 @@ import {
   feedbackSchema,
   type FeedbackInput,
 } from "@/lib/validations/patient";
+import { useEffect } from "react";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,6 +28,7 @@ import { cn } from "@/lib/utils";
 export default function FeedbackPage() {
   const [loading, setLoading] = useState(false);
   const [hoveredStar, setHoveredStar] = useState(0);
+  const [feedbackList, setFeedbackList] = useState<any[]>([]);
 
   const form = useForm<FeedbackInput>({
     resolver: zodResolver(feedbackSchema),
@@ -38,14 +40,48 @@ export default function FeedbackPage() {
 
   const ratingValue = form.watch("rating");
 
+  useEffect(() => {
+    async function fetchFeedback() {
+      try {
+        const res = await fetch("/api/pasien/feedback");
+        if (res.ok) {
+          const data = await res.json();
+          setFeedbackList(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch feedback:", err);
+      }
+    }
+    fetchFeedback();
+  }, []);
+
   async function onSubmit(data: FeedbackInput) {
     setLoading(true);
-    // TODO: Supabase insert ke feedback
-    console.log("Feedback:", data);
-    await new Promise((r) => setTimeout(r, 1000));
-    toast.success("Terima kasih atas feedback Anda!");
-    form.reset();
-    setLoading(false);
+    try {
+      const res = await fetch("/api/pasien/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error(err.error || "Gagal mengirim feedback");
+        return;
+      }
+
+      const result = await res.json();
+      toast.success("Terima kasih atas feedback Anda!");
+      form.reset();
+      // Add to local list
+      if (result.data) {
+        setFeedbackList((prev) => [result.data, ...prev]);
+      }
+    } catch {
+      toast.error("Terjadi kesalahan jaringan");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -135,11 +171,39 @@ export default function FeedbackPage() {
             <CardTitle className="text-lg">Riwayat Feedback</CardTitle>
           </CardHeader>
           <CardContent>
-            <EmptyState
-              icon={MessageSquare}
-              title="Belum Ada Feedback"
-              description="Feedback yang sudah Anda kirim akan muncul di sini."
-            />
+            {feedbackList.length === 0 ? (
+              <EmptyState
+                icon={MessageSquare}
+                title="Belum Ada Feedback"
+                description="Feedback yang sudah Anda kirim akan muncul di sini."
+              />
+            ) : (
+              <div className="space-y-3">
+                {feedbackList.map((fb: any) => (
+                  <div key={fb.id_feedback} className="rounded-lg border p-4">
+                    <div className="flex items-center gap-1 mb-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={cn(
+                            "h-4 w-4",
+                            fb.rating >= star
+                              ? "fill-amber-400 text-amber-400"
+                              : "text-muted-foreground/30"
+                          )}
+                        />
+                      ))}
+                    </div>
+                    {fb.komentar && (
+                      <p className="text-sm text-muted-foreground">{fb.komentar}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {new Date(fb.tanggal_feedback).toLocaleDateString("id-ID")}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

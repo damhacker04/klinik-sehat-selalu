@@ -1,10 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
   ClipboardCheck,
   Clock,
@@ -15,7 +15,46 @@ import {
   Calendar,
 } from "lucide-react";
 
+interface AdminStats {
+  pendingVerifikasi: number;
+  antrianHariIni: number;
+  pasienHariIni: number;
+  pendapatan: number;
+}
+
 export default function AdminDashboard() {
+  const [stats, setStats] = useState<AdminStats>({
+    pendingVerifikasi: 0,
+    antrianHariIni: 0,
+    pasienHariIni: 0,
+    pendapatan: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const res = await fetch("/api/admin/stats");
+        if (res.ok) {
+          const data = await res.json();
+          setStats(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch admin stats:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
+  }, []);
+
+  const formatRupiah = (amount: number) =>
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(amount);
+
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
@@ -26,28 +65,28 @@ export default function AdminDashboard() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 stagger-children">
         <StatCard
           title="Pending Verifikasi"
-          value="0"
+          value={loading ? "..." : String(stats.pendingVerifikasi)}
           icon={ClipboardCheck}
           description="Form menunggu verifikasi"
           roleColor="admin"
         />
         <StatCard
           title="Antrian Hari Ini"
-          value="0"
+          value={loading ? "..." : String(stats.antrianHariIni)}
           icon={Clock}
           description="Pasien dalam antrian"
           roleColor="admin"
         />
         <StatCard
           title="Pasien Hari Ini"
-          value="0"
+          value={loading ? "..." : String(stats.pasienHariIni)}
           icon={Users}
           description="Total pasien dilayani"
           roleColor="admin"
         />
         <StatCard
           title="Pendapatan"
-          value="Rp 0"
+          value={loading ? "..." : formatRupiah(stats.pendapatan)}
           icon={DollarSign}
           description="Pendapatan hari ini"
           roleColor="admin"
