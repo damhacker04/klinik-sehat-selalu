@@ -139,7 +139,7 @@ export default function LaporanPage() {
                     <XAxis dataKey="hari" />
                     <YAxis tickFormatter={formatRupiahShort} />
                     <Tooltip
-                      formatter={(value: number) => [formatRupiah(value), "Pendapatan"]}
+                      formatter={(value: number | undefined) => [formatRupiah(value ?? 0), "Pendapatan"]}
                     />
                     <Bar dataKey="pendapatan" fill="#10b981" radius={[4, 4, 0, 0]} />
                   </BarChart>
