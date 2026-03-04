@@ -18,7 +18,7 @@ async function ensurePasienRecord(supabase: any, userId: string, email: string, 
         .insert({
             user_id: userId,
             nama: nama || email,
-            nik: "-",
+            nik: `TEMP-${userId.slice(0, 8)}`,
             email: email,
         })
         .select("id_pasien")

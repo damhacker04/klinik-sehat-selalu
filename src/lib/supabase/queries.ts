@@ -52,7 +52,7 @@ export async function getIdPasien(
         .insert({
             user_id: userId,
             nama: userMeta?.nama || userMeta?.email || "Pasien",
-            nik: "-",
+            nik: `TEMP-${userId.slice(0, 8)}`,
             email: userMeta?.email || null,
         })
         .select("id_pasien")
