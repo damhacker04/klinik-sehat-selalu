@@ -248,6 +248,18 @@ CREATE TABLE notifications (
 );
 
 -- ============================================
+-- FOREIGN KEYS (added after all tables created)
+-- ============================================
+ALTER TABLE jadwal ADD CONSTRAINT fk_jadwal_dokter FOREIGN KEY (id_dokter) REFERENCES dokter(id_dokter) ON DELETE SET NULL;
+ALTER TABLE jadwal ADD CONSTRAINT fk_jadwal_perawat FOREIGN KEY (id_perawat) REFERENCES perawat(id_perawat) ON DELETE SET NULL;
+ALTER TABLE rekam_medis ADD CONSTRAINT fk_rekam_medis_pasien FOREIGN KEY (id_pasien) REFERENCES pasien(id_pasien) ON DELETE CASCADE;
+ALTER TABLE resep ADD CONSTRAINT fk_resep_rekam FOREIGN KEY (id_rekam) REFERENCES rekam_medis(id_rekam) ON DELETE CASCADE;
+ALTER TABLE resep ADD CONSTRAINT fk_resep_dokter FOREIGN KEY (id_dokter) REFERENCES dokter(id_dokter);
+ALTER TABLE transaksi ADD CONSTRAINT fk_transaksi_pasien FOREIGN KEY (id_pasien) REFERENCES pasien(id_pasien);
+ALTER TABLE transaksi ADD CONSTRAINT fk_transaksi_rekam FOREIGN KEY (id_rekam) REFERENCES rekam_medis(id_rekam) ON DELETE SET NULL;
+ALTER TABLE reminder ADD CONSTRAINT fk_reminder_pasien FOREIGN KEY (id_pasien) REFERENCES pasien(id_pasien) ON DELETE CASCADE;
+
+-- ============================================
 -- INDEXES
 -- ============================================
 CREATE INDEX idx_user_accounts_email ON user_accounts(email);
