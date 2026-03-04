@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getAuthUser, getIdKasir } from "@/lib/supabase/queries";
+import { getAuthUser, getIdKasir, requireRole } from "@/lib/supabase/queries";
 
 export async function GET() {
     try {
         const supabase = await createClient();
-        await getAuthUser(supabase);
+        const user = await getAuthUser(supabase);
+        await requireRole(supabase, user.id, ["kasir"]);
 
         // Get pasien yang sudah selesai diperiksa (punya resep completed)
         const { data, error } = await (supabase as any)
@@ -21,7 +22,7 @@ export async function GET() {
     } catch (error: any) {
         return NextResponse.json(
             { error: error.message || "Server error" },
-            { status: error.message === "Unauthorized" ? 401 : 500 }
+            { status: error.message === "Unauthorized" ? 401 : error.message === "Forbidden" ? 403 : 500 }
         );
     }
 }
@@ -30,6 +31,7 @@ export async function POST(request: NextRequest) {
     try {
         const supabase = await createClient();
         const user = await getAuthUser(supabase);
+        await requireRole(supabase, user.id, ["kasir"]);
         const idKasir = await getIdKasir(supabase, user.id, { email: user.email, nama: user.user_metadata?.nama });
         const body = await request.json();
         const { id_pasien, id_rekam, items, metode_pembayaran } = body;
@@ -87,7 +89,60 @@ export async function POST(request: NextRequest) {
     } catch (error: any) {
         return NextResponse.json(
             { error: error.message || "Server error" },
-            { status: error.message === "Unauthorized" ? 401 : 500 }
+            { status: error.message === "Unauthorized" ? 401 : error.message === "Forbidden" ? 403 : 500 }
+        );
+    }
+}
+
+export async function PUT(request: NextRequest) {
+    try {
+        const supabase = await createClient();
+        const user = await getAuthUser(supabase);
+        await requireRole(supabase, user.id, ["kasir"]);
+        const body = await request.json();
+        const { id_transaksi, metode_pembayaran } = body;
+
+        if (!id_transaksi || !metode_pembayaran) {
+            return NextResponse.json(
+                { error: "id_transaksi dan metode_pembayaran wajib" },
+                { status: 400 }
+            );
+        }
+
+        const { error } = await (supabase as any)
+            .from("transaksi")
+            .update({
+                status: "paid",
+                metode_pembayaran,
+                tanggal_bayar: new Date().toISOString(),
+            })
+            .eq("id_transaksi", id_transaksi)
+            .eq("status", "draft");
+
+        if (error) {
+            return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+
+        // Auto-notification: notify pasien pembayaran selesai
+        const { data: transaksiInfo } = await (supabase as any)
+            .from("transaksi")
+            .select("id_pasien, total_biaya")
+            .eq("id_transaksi", id_transaksi)
+            .single();
+        if (transaksiInfo?.id_pasien) {
+            await (supabase as any).from("notifications").insert({
+                id_pasien: transaksiInfo.id_pasien,
+                judul: "Pembayaran Selesai",
+                pesan: `Pembayaran sebesar Rp ${(transaksiInfo.total_biaya || 0).toLocaleString("id-ID")} telah berhasil diproses.`,
+                dibaca: false,
+            });
+        }
+
+        return NextResponse.json({ message: "Pembayaran berhasil" });
+    } catch (error: any) {
+        return NextResponse.json(
+            { error: error.message || "Server error" },
+            { status: error.message === "Unauthorized" ? 401 : error.message === "Forbidden" ? 403 : 500 }
         );
     }
 }

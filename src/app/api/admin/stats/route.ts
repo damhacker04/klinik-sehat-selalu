@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getAuthUser, getTodayRange } from "@/lib/supabase/queries";
+import { getAuthUser, requireRole, getTodayRange } from "@/lib/supabase/queries";
 
 function getDayRange(daysAgo: number) {
     const wibOffset = 7 * 60 * 60 * 1000;
@@ -21,7 +21,8 @@ function getDayRange(daysAgo: number) {
 export async function GET() {
     try {
         const supabase = await createClient();
-        await getAuthUser(supabase);
+        const user = await getAuthUser(supabase);
+        await requireRole(supabase, user.id, ["admin"]);
         const { start, end } = getTodayRange();
 
         // Pending verifikasi count
@@ -96,7 +97,7 @@ export async function GET() {
     } catch (error: any) {
         return NextResponse.json(
             { error: error.message || "Server error" },
-            { status: error.message === "Unauthorized" ? 401 : 500 }
+            { status: error.message === "Unauthorized" ? 401 : error.message === "Forbidden" ? 403 : 500 }
         );
     }
 }

@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getAuthUser, getIdPerawat } from "@/lib/supabase/queries";
+import { getAuthUser, requireRole, getIdPerawat } from "@/lib/supabase/queries";
 
 export async function GET() {
     try {
         const supabase = await createClient();
         const user = await getAuthUser(supabase);
+        await requireRole(supabase, user.id, ["perawat"]);
         const idPerawat = await getIdPerawat(supabase, user.id, {
             email: user.email,
             nama: user.user_metadata?.nama,
@@ -25,7 +26,7 @@ export async function GET() {
     } catch (error: any) {
         return NextResponse.json(
             { error: error.message || "Server error" },
-            { status: error.message === "Unauthorized" ? 401 : 500 }
+            { status: error.message === "Unauthorized" ? 401 : error.message === "Forbidden" ? 403 : 500 }
         );
     }
 }

@@ -3,13 +3,14 @@
 import { SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar, type NavItem } from "@/components/shared/app-sidebar";
 import { useUser } from "@/hooks/use-user";
-import { Home, Activity, FileText, StickyNote } from "lucide-react";
+import { Home, Activity, FileText, StickyNote, Calendar } from "lucide-react";
 
 const navItems: NavItem[] = [
   { title: "Dashboard", href: "/perawat", icon: Home },
   { title: "Pemeriksaan Awal", href: "/perawat/pemeriksaan", icon: Activity },
   { title: "Riwayat Pasien", href: "/perawat/riwayat", icon: FileText },
   { title: "Catatan", href: "/perawat/catatan", icon: StickyNote },
+  { title: "Jadwal", href: "/perawat/jadwal", icon: Calendar },
 ];
 
 export default function PerawatLayout({

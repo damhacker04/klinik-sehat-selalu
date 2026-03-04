@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CreditCard, Plus, Trash2 } from "lucide-react";
+import { CreditCard, Plus, Trash2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface TransaksiRow {
@@ -44,6 +44,9 @@ export default function KasirTransaksiPage() {
   const [data, setData] = useState<TransaksiRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [payOpen, setPayOpen] = useState(false);
+  const [payingId, setPayingId] = useState<number | null>(null);
+  const [payMethod, setPayMethod] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [pasienList, setPasienList] = useState<any[]>([]);
   const [form, setForm] = useState({
@@ -79,10 +82,10 @@ export default function KasirTransaksiPage() {
 
   async function fetchPasien() {
     try {
-      const res = await fetch("/api/admin/pengguna");
+      // B2: Use dedicated kasir pasien endpoint
+      const res = await fetch("/api/kasir/pasien");
       if (res.ok) {
-        const users = await res.json();
-        setPasienList(users.filter((u: any) => u.role === "pasien"));
+        setPasienList(await res.json());
       }
     } catch (err) {
       console.error("Failed to fetch pasien:", err);
@@ -156,6 +159,38 @@ export default function KasirTransaksiPage() {
     }
   }
 
+  async function handlePay() {
+    if (!payingId || !payMethod) {
+      toast.error("Pilih metode pembayaran");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/kasir/transaksi", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_transaksi: payingId,
+          metode_pembayaran: payMethod,
+        }),
+      });
+      if (res.ok) {
+        toast.success("Pembayaran berhasil");
+        setPayOpen(false);
+        setPayingId(null);
+        setPayMethod("");
+        fetchData();
+      } else {
+        const err = await res.json();
+        toast.error(err.error || "Gagal memproses pembayaran");
+      }
+    } catch {
+      toast.error("Terjadi kesalahan jaringan");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   const formatRupiah = (n: number) =>
     new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -193,6 +228,24 @@ export default function KasirTransaksiPage() {
       header: "Status",
       cell: (row) => <StatusBadge status={row.status as any} />,
     },
+    {
+      key: "id_transaksi" as any,
+      header: "Aksi",
+      cell: (row) =>
+        row.status === "draft" ? (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setPayingId(row.id_transaksi);
+              setPayMethod("");
+              setPayOpen(true);
+            }}
+          >
+            <CheckCircle className="h-3 w-3 mr-1" /> Bayar
+          </Button>
+        ) : null,
+    },
   ];
 
   return (
@@ -224,9 +277,12 @@ export default function KasirTransaksiPage() {
                       <SelectValue placeholder="Pilih pasien..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {pasienList.map((p) => (
-                        <SelectItem key={p.id} value={String(p.id)}>
-                          {p.email}
+                      {pasienList.map((p: any) => (
+                        <SelectItem
+                          key={p.id_pasien}
+                          value={String(p.id_pasien)}
+                        >
+                          {p.nama}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -323,6 +379,38 @@ export default function KasirTransaksiPage() {
           </Dialog>
         }
       />
+
+      {/* Pay Dialog */}
+      <Dialog open={payOpen} onOpenChange={setPayOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Proses Pembayaran</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Metode Pembayaran *</Label>
+              <Select value={payMethod} onValueChange={setPayMethod}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih metode..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="tunai">Tunai</SelectItem>
+                  <SelectItem value="kartu">Kartu</SelectItem>
+                  <SelectItem value="transfer">Transfer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              className="w-full"
+              disabled={submitting || !payMethod}
+              onClick={handlePay}
+            >
+              {submitting ? "Memproses..." : "Konfirmasi Pembayaran"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {!loading && data.length === 0 ? (
         <EmptyState
           icon={CreditCard}

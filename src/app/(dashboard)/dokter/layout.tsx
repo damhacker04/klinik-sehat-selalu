@@ -9,6 +9,7 @@ import {
   FileText,
   Pill,
   CalendarCheck,
+  Calendar,
 } from "lucide-react";
 
 const navItems: NavItem[] = [
@@ -17,6 +18,7 @@ const navItems: NavItem[] = [
   { title: "Rekam Medis", href: "/dokter/rekam-medis", icon: FileText },
   { title: "Resep & Rujukan", href: "/dokter/resep", icon: Pill },
   { title: "Kontrol Lanjutan", href: "/dokter/kontrol", icon: CalendarCheck },
+  { title: "Jadwal", href: "/dokter/jadwal", icon: Calendar },
 ];
 
 export default function DokterLayout({

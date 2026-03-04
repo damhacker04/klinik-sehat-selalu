@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getAuthUser, getIdDokter } from "@/lib/supabase/queries";
+import { getAuthUser, getIdDokter, requireRole } from "@/lib/supabase/queries";
 
 export async function PUT(request: NextRequest) {
     try {
         const supabase = await createClient();
         const user = await getAuthUser(supabase);
+        await requireRole(supabase, user.id, ["dokter"]);
         const idDokter = await getIdDokter(supabase, user.id, { email: user.email, nama: user.user_metadata?.nama });
         const body = await request.json();
         const { id_rekam, diagnosa, catatan, rujukan, kontrol_lanjutan } = body;
@@ -34,7 +35,7 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
-        // If kontrol_lanjutan, create reminder
+        // If kontrol_lanjutan, create reminder + notify pasien
         if (kontrol_lanjutan && body.tanggal_kontrol) {
             await (supabase as any).from("reminder").insert({
                 id_rekam,
@@ -42,13 +43,24 @@ export async function PUT(request: NextRequest) {
                 tanggal_kontrol: body.tanggal_kontrol,
                 status: "pending",
             });
+
+            // Auto-notification: notify pasien about kontrol lanjutan
+            const tanggal = new Date(body.tanggal_kontrol).toLocaleDateString("id-ID", {
+                weekday: "long", year: "numeric", month: "long", day: "numeric",
+            });
+            await (supabase as any).from("notifications").insert({
+                id_pasien: data.id_pasien,
+                judul: "Kontrol Lanjutan Dijadwalkan",
+                pesan: `Dokter menjadwalkan kontrol lanjutan Anda pada ${tanggal}. Silakan daftar kembali menjelang tanggal tersebut.`,
+                dibaca: false,
+            });
         }
 
         return NextResponse.json({ message: "Diagnosis berhasil disimpan", data });
     } catch (error: any) {
         return NextResponse.json(
             { error: error.message || "Server error" },
-            { status: error.message === "Unauthorized" ? 401 : 500 }
+            { status: error.message === "Unauthorized" ? 401 : error.message === "Forbidden" ? 403 : 500 }
         );
     }
 }

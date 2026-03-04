@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Package, Plus } from "lucide-react";
+import { Package, Plus, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 interface ObatRow {
@@ -31,6 +31,7 @@ export default function StokObatPage() {
   const [data, setData] = useState<ObatRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     nama_obat: "",
@@ -38,6 +39,14 @@ export default function StokObatPage() {
     harga: "",
     satuan: "",
     stok_minimum: "10",
+  });
+  const [editForm, setEditForm] = useState({
+    id_obat: 0,
+    nama_obat: "",
+    stok: "",
+    harga: "",
+    satuan: "",
+    stok_minimum: "",
   });
 
   async function fetchData() {
@@ -90,6 +99,49 @@ export default function StokObatPage() {
     }
   }
 
+  function openEdit(row: ObatRow) {
+    setEditForm({
+      id_obat: row.id_obat,
+      nama_obat: row.nama_obat,
+      stok: String(row.stok),
+      harga: String(row.harga),
+      satuan: row.satuan || "",
+      stok_minimum: String(row.stok_minimum),
+    });
+    setEditOpen(true);
+  }
+
+  async function handleEdit(e: React.FormEvent) {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/apoteker/stok", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_obat: editForm.id_obat,
+          nama_obat: editForm.nama_obat,
+          stok: parseInt(editForm.stok),
+          harga: parseInt(editForm.harga),
+          satuan: editForm.satuan || "tablet",
+          stok_minimum: parseInt(editForm.stok_minimum) || 10,
+        }),
+      });
+      if (res.ok) {
+        toast.success("Obat berhasil diupdate");
+        setEditOpen(false);
+        fetchData();
+      } else {
+        const err = await res.json();
+        toast.error(err.error || "Gagal mengupdate obat");
+      }
+    } catch {
+      toast.error("Terjadi kesalahan jaringan");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   const formatRupiah = (n: number) =>
     new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -125,6 +177,15 @@ export default function StokObatPage() {
       key: "stok_minimum",
       header: "Min. Stok",
       cell: (row) => <span>{row.stok_minimum}</span>,
+    },
+    {
+      key: "id_obat" as any,
+      header: "Aksi",
+      cell: (row) => (
+        <Button size="sm" variant="outline" onClick={() => openEdit(row)}>
+          <Pencil className="h-3 w-3 mr-1" /> Edit
+        </Button>
+      ),
     },
   ];
 
@@ -221,6 +282,79 @@ export default function StokObatPage() {
           </Dialog>
         }
       />
+
+      {/* Edit Dialog */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Obat</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEdit} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Nama Obat *</Label>
+              <Input
+                value={editForm.nama_obat}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, nama_obat: e.target.value })
+                }
+                required
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Stok *</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={editForm.stok}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, stok: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Satuan</Label>
+                <Input
+                  value={editForm.satuan}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, satuan: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Harga (Rp) *</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={editForm.harga}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, harga: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Stok Minimum</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={editForm.stok_minimum}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, stok_minimum: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+            <Button type="submit" className="w-full" disabled={submitting}>
+              {submitting ? "Menyimpan..." : "Update Obat"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {!loading && data.length === 0 ? (
         <EmptyState
           icon={Package}

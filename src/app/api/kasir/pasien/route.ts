@@ -1,22 +1,17 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getAuthUser, getIdDokter, requireRole } from "@/lib/supabase/queries";
+import { getAuthUser, requireRole } from "@/lib/supabase/queries";
 
 export async function GET() {
     try {
         const supabase = await createClient();
         const user = await getAuthUser(supabase);
-        await requireRole(supabase, user.id, ["dokter"]);
-        const idDokter = await getIdDokter(supabase, user.id, {
-            email: user.email,
-            nama: user.user_metadata?.nama,
-        });
+        await requireRole(supabase, user.id, ["kasir"]);
 
         const { data, error } = await (supabase as any)
-            .from("jadwal")
-            .select("*, dokter(nama), perawat(nama)")
-            .eq("id_dokter", idDokter)
-            .order("hari", { ascending: true });
+            .from("pasien")
+            .select("id_pasien, nama, email")
+            .order("nama", { ascending: true });
 
         if (error) {
             return NextResponse.json({ error: error.message }, { status: 500 });

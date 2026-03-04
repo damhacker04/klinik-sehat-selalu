@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getAuthUser } from "@/lib/supabase/queries";
+import { getAuthUser, requireRole } from "@/lib/supabase/queries";
 
 export async function GET() {
     try {
         const supabase = await createClient();
-        await getAuthUser(supabase);
+        const user = await getAuthUser(supabase);
+        await requireRole(supabase, user.id, ["admin"]);
 
         // Get all antrian with pasien info
         const { data, error } = await (supabase as any)
@@ -33,7 +34,7 @@ export async function GET() {
     } catch (error: any) {
         return NextResponse.json(
             { error: error.message || "Server error" },
-            { status: error.message === "Unauthorized" ? 401 : 500 }
+            { status: error.message === "Unauthorized" ? 401 : error.message === "Forbidden" ? 403 : 500 }
         );
     }
 }
@@ -41,7 +42,8 @@ export async function GET() {
 export async function PUT(request: NextRequest) {
     try {
         const supabase = await createClient();
-        await getAuthUser(supabase);
+        const user = await getAuthUser(supabase);
+        await requireRole(supabase, user.id, ["admin"]);
         const body = await request.json();
         const { id_antrian, action } = body;
 
@@ -68,13 +70,31 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
+        // Auto-notification: notify pasien when called
+        if (action === "call") {
+            const { data: antrianInfo } = await (supabase as any)
+                .from("antrian")
+                .select("form_pendaftaran(id_pasien)")
+                .eq("id_antrian", id_antrian)
+                .single();
+            const idPasien = antrianInfo?.form_pendaftaran?.id_pasien;
+            if (idPasien) {
+                await (supabase as any).from("notifications").insert({
+                    id_pasien: idPasien,
+                    judul: "Antrian Dipanggil",
+                    pesan: "Nomor antrian Anda telah dipanggil. Silakan menuju ruang pemeriksaan.",
+                    dibaca: false,
+                });
+            }
+        }
+
         return NextResponse.json({
             message: action === "call" ? "Pasien dipanggil" : "Antrian selesai",
         });
     } catch (error: any) {
         return NextResponse.json(
             { error: error.message || "Server error" },
-            { status: error.message === "Unauthorized" ? 401 : 500 }
+            { status: error.message === "Unauthorized" ? 401 : error.message === "Forbidden" ? 403 : 500 }
         );
     }
 }

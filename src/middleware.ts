@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { ROLE_DASHBOARD_ROUTES } from "@/lib/constants";
 
 // Public routes that don't require authentication
-const publicRoutes = ["/", "/login", "/register", "/reset-password"];
+const publicRoutes = ["/", "/login", "/register", "/reset-password", "/reset-password/confirm", "/auth/callback"];
 
 // Role-based route access mapping
 const roleRouteAccess: Record<string, string[]> = {
@@ -43,7 +43,25 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
+
+  // Handle Supabase auth code exchange (password reset, email confirm, etc.)
+  const code = searchParams.get("code");
+  if (code) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error && data.session) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/reset-password/confirm";
+      redirectUrl.searchParams.delete("code");
+      redirectUrl.searchParams.delete("next");
+      const redirectResponse = NextResponse.redirect(redirectUrl);
+      // Transfer session cookies from supabaseResponse to redirect response
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie.name, cookie.value);
+      });
+      return redirectResponse;
+    }
+  }
 
   // Allow public routes
   if (publicRoutes.some((route) => pathname === route)) {

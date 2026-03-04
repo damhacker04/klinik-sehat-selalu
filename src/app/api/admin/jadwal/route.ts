@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getAuthUser } from "@/lib/supabase/queries";
+import { getAuthUser, requireRole } from "@/lib/supabase/queries";
 
 export async function GET() {
     try {
         const supabase = await createClient();
-        await getAuthUser(supabase);
+        const user = await getAuthUser(supabase);
+        await requireRole(supabase, user.id, ["admin"]);
 
         const { data, error } = await (supabase as any)
             .from("jadwal")
@@ -29,7 +30,7 @@ export async function GET() {
     } catch (error: any) {
         return NextResponse.json(
             { error: error.message || "Server error" },
-            { status: error.message === "Unauthorized" ? 401 : 500 }
+            { status: error.message === "Unauthorized" ? 401 : error.message === "Forbidden" ? 403 : 500 }
         );
     }
 }
@@ -37,7 +38,8 @@ export async function GET() {
 export async function POST(request: NextRequest) {
     try {
         const supabase = await createClient();
-        await getAuthUser(supabase);
+        const user = await getAuthUser(supabase);
+        await requireRole(supabase, user.id, ["admin"]);
         const body = await request.json();
         const { id_dokter, id_perawat, hari, jam_mulai, jam_selesai } = body;
 
@@ -71,7 +73,7 @@ export async function POST(request: NextRequest) {
     } catch (error: any) {
         return NextResponse.json(
             { error: error.message || "Server error" },
-            { status: error.message === "Unauthorized" ? 401 : 500 }
+            { status: error.message === "Unauthorized" ? 401 : error.message === "Forbidden" ? 403 : 500 }
         );
     }
 }
@@ -79,7 +81,8 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
     try {
         const supabase = await createClient();
-        await getAuthUser(supabase);
+        const user = await getAuthUser(supabase);
+        await requireRole(supabase, user.id, ["admin"]);
         const { searchParams } = new URL(request.url);
         const id = searchParams.get("id");
 
@@ -100,7 +103,7 @@ export async function DELETE(request: NextRequest) {
     } catch (error: any) {
         return NextResponse.json(
             { error: error.message || "Server error" },
-            { status: error.message === "Unauthorized" ? 401 : 500 }
+            { status: error.message === "Unauthorized" ? 401 : error.message === "Forbidden" ? 403 : 500 }
         );
     }
 }

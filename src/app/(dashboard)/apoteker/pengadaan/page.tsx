@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ShoppingCart, Plus } from "lucide-react";
+import { ShoppingCart, Plus, CheckCircle, Truck, PackageCheck } from "lucide-react";
 import { toast } from "sonner";
 
 interface Obat {
@@ -100,6 +100,31 @@ export default function PengadaanPage() {
       setSubmitting(false);
     }
   }
+
+  async function updateStatus(id_request: number, status: string) {
+    try {
+      const res = await fetch("/api/apoteker/pengadaan", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_request, status }),
+      });
+      if (res.ok) {
+        toast.success(`Status diubah ke ${status}`);
+        fetchData();
+      } else {
+        const err = await res.json();
+        toast.error(err.error || "Gagal mengubah status");
+      }
+    } catch {
+      toast.error("Terjadi kesalahan jaringan");
+    }
+  }
+
+  const nextAction: Record<string, { label: string; next: string; icon: any }> = {
+    pending: { label: "Approve", next: "approved", icon: CheckCircle },
+    approved: { label: "Order", next: "ordered", icon: Truck },
+    ordered: { label: "Terima", next: "received", icon: PackageCheck },
+  };
 
   const statusColor = (status: string) => {
     switch (status) {
@@ -214,11 +239,28 @@ export default function PengadaanPage() {
                   </p>
                 )}
               </div>
-              <span
-                className={`text-xs px-2 py-1 rounded-full ${statusColor(item.status)}`}
-              >
-                {item.status}
-              </span>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-xs px-2 py-1 rounded-full ${statusColor(item.status)}`}
+                >
+                  {item.status}
+                </span>
+                {nextAction[item.status] && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      updateStatus(item.id_request, nextAction[item.status].next)
+                    }
+                  >
+                    {(() => {
+                      const Icon = nextAction[item.status].icon;
+                      return <Icon className="h-3 w-3 mr-1" />;
+                    })()}
+                    {nextAction[item.status].label}
+                  </Button>
+                )}
+              </div>
             </div>
           ))}
         </div>

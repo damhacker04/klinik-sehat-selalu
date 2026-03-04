@@ -195,3 +195,28 @@ export function errorResponse(message: string, status: number = 400) {
 export function successResponse(data: unknown, status: number = 200) {
     return Response.json(data, { status });
 }
+
+/**
+ * Validate user role — throws "Forbidden" if user doesn't have one of the allowed roles
+ */
+export async function requireRole(
+    supabase: any,
+    userId: string,
+    allowedRoles: string[]
+) {
+    const { data, error } = await supabase
+        .from("user_accounts")
+        .select("role")
+        .eq("id", userId)
+        .single();
+
+    if (error || !data) {
+        throw new Error("Forbidden");
+    }
+
+    if (!allowedRoles.includes(data.role)) {
+        throw new Error("Forbidden");
+    }
+
+    return data.role as string;
+}
