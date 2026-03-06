@@ -16,7 +16,10 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             <div className="relative">
                 <Input
                     type={showPassword ? "text" : "password"}
-                    className={cn("pr-10", className)}
+                    className={cn(
+                        "pr-10 [&::-ms-reveal]:hidden [&::-ms-clear]:hidden [&::-webkit-reveal]:hidden",
+                        className
+                    )}
                     ref={ref}
                     {...props}
                 />

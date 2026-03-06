@@ -6,7 +6,7 @@ export async function GET() {
     try {
         const supabase = await createClient();
         const user = await getAuthUser(supabase);
-        await requireRole(supabase, user.id, ["apoteker"]);
+        await requireRole(supabase, user.id, ["apoteker", "dokter"]);
 
         const { data, error } = await (supabase as any)
             .from("obat")

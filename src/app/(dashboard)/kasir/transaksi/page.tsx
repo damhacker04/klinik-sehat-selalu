@@ -229,7 +229,7 @@ export default function KasirTransaksiPage() {
       cell: (row) => <StatusBadge status={row.status as any} />,
     },
     {
-      key: "id_transaksi" as any,
+      key: "aksi",
       header: "Aksi",
       cell: (row) =>
         row.status === "draft" ? (

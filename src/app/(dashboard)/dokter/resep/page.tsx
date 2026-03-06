@@ -203,7 +203,7 @@ export default function DokterResepPage() {
                                   key={o.id_obat}
                                   value={String(o.id_obat)}
                                 >
-                                  {o.nama_obat} (stok: {o.stok})
+                                  {o.nama_obat} - {o.satuan || "Unit"} (stok: {o.stok})
                                 </SelectItem>
                               ))}
                             </SelectContent>

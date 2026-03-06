@@ -52,7 +52,7 @@ export async function GET() {
             .limit(1);
 
         return NextResponse.json({
-            antrian: myAntrian?.[0] || null,
+            antrian: myAntrian || null,
             currentServing: currentServing?.[0]?.nomor_antrian || null,
         });
     } catch (error: any) {

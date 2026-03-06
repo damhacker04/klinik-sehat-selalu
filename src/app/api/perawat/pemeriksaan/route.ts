@@ -70,7 +70,9 @@ export async function POST(request: NextRequest) {
 
         // Update antrian status to done if id_antrian provided
         if (id_antrian) {
-            await (supabase as any)
+            const { createAdminClient } = await import("@/lib/supabase/admin");
+            const adminSupabase = createAdminClient();
+            await (adminSupabase as any)
                 .from("antrian")
                 .update({ status: "done" })
                 .eq("id_antrian", id_antrian);
