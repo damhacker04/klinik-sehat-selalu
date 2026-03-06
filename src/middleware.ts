@@ -2,8 +2,11 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { ROLE_DASHBOARD_ROUTES } from "@/lib/constants";
 
-// Public routes that don't require authentication
+// Public routes that don't require authentication, and API base route 
 const publicRoutes = ["/", "/login", "/register", "/reset-password", "/reset-password/confirm", "/auth/callback"];
+
+// API routes that should bypass middleware redirects and be handled by their own Endpoint logic
+const apiRoutesPrefix = "/api";
 
 // Role-based route access mapping
 const roleRouteAccess: Record<string, string[]> = {

@@ -64,3 +64,20 @@ export async function PUT(request: NextRequest) {
         );
     }
 }
+
+export async function GET() {
+    try {
+        const supabase = await createClient();
+        const user = await getAuthUser(supabase);
+        await requireRole(supabase, user.id, ["dokter"]);
+
+        // This endpoint might just be accessed to check auth or get something basic.
+        // We return a simple successful response if authorized.
+        return NextResponse.json({ message: "Authorized" });
+    } catch (error: any) {
+        return NextResponse.json(
+            { error: error.message || "Unauthorized" },
+            { status: error.message === "Unauthorized" ? 401 : error.message === "Forbidden" ? 403 : 500 }
+        );
+    }
+}

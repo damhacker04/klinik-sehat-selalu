@@ -6,30 +6,40 @@ import { getAuthUser, getIdPasien } from "@/lib/supabase/queries";
 export async function GET() {
     try {
         const supabase = await createClient();
-        const user = await getAuthUser(supabase);
-        const idPasien = await getIdPasien(supabase, user.id, { email: user.email, nama: user.user_metadata?.nama });
+        let user;
+        let myAntrian = null;
 
-        // Get antrian for this pasien's active form
-        const { data: forms } = await (supabase as any)
-            .from("form_pendaftaran")
-            .select("id_form")
-            .eq("id_pasien", idPasien)
-            .eq("status", "verified");
+        try {
+            user = await getAuthUser(supabase);
 
-        if (!forms || forms.length === 0) {
-            return NextResponse.json({ antrian: null, currentServing: null });
+            if (user) {
+                const idPasien = await getIdPasien(supabase, user.id, { email: user.email, nama: user.user_metadata?.nama });
+
+                // Get antrian for this pasien's active form
+                const { data: forms } = await (supabase as any)
+                    .from("form_pendaftaran")
+                    .select("id_form")
+                    .eq("id_pasien", idPasien)
+                    .eq("status", "verified");
+
+                if (forms && forms.length > 0) {
+                    const formIds = forms.map((f: any) => f.id_form);
+
+                    // Get my antrian
+                    const { data: antrianData } = await (supabase as any)
+                        .from("antrian")
+                        .select("*")
+                        .in("id_form", formIds)
+                        .in("status", ["waiting", "called"])
+                        .order("nomor_antrian", { ascending: true })
+                        .limit(1);
+
+                    myAntrian = antrianData?.[0] || null;
+                }
+            }
+        } catch (e) {
+            // User is not authenticated, continue to fetch current serving
         }
-
-        const formIds = forms.map((f: any) => f.id_form);
-
-        // Get my antrian
-        const { data: myAntrian } = await (supabase as any)
-            .from("antrian")
-            .select("*")
-            .in("id_form", formIds)
-            .in("status", ["waiting", "called"])
-            .order("nomor_antrian", { ascending: true })
-            .limit(1);
 
         // Use admin client (bypass RLS) to get the currently serving number
         // because the pasien RLS policy only allows seeing their own queue
