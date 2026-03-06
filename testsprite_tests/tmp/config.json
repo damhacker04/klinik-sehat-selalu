@@ -1,0 +1,19 @@
+{
+  "status": "commited",
+  "type": "backend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "backendAuthType": "public",
+  "executionArgs": {
+    "projectName": "wonderful-kalam",
+    "projectPath": "c:\\Projek Saya\\klinik-sehat-selalu\\.claude\\worktrees\\wonderful-kalam",
+    "testIds": [],
+    "additionalInstruction": "",
+    "serverMode": "development",
+    "envs": {
+      "API_KEY": "sk-user-m0JF_IRNCpXHe0p0e4i-XWHcYtJiOA7WAoBUDbuLEZW-HBGjcTlAf0n1VdeJu1GC9Svb_Ax3zC37mIev8byb2dWq4Eth8Jky4rCwbvt9Bxhv-gvRlGYMy8v7_LQ3OXYrulU"
+    }
+  },
+  "serverPort": 57690,
+  "proxy": "http://6ed192af-b615-48f4-a3db-4cb6a3d7c3f2:3u4a2h71t9Ytx678ecK9oazJAAk7ek0s@tun.testsprite.com:8080"
+}

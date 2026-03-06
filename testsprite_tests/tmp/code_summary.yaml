@@ -1,0 +1,44 @@
+version: "2"
+type: backend
+tech_stack:
+  - typescript
+  - nextjs
+  - react
+  - supabase
+  - tailwindcss
+  - prisma
+features:
+  - name: Pasien Antrian API
+    description: Get current patient queue
+    files:
+      - src/app/api/pasien/antrian/route.ts
+    endpoints:
+      - method: GET
+        path: /api/pasien/antrian
+        description: List current queues
+        auth_required: false
+        response_schema:
+          "200": Queue[]
+  - name: Dokter Pemeriksaan API
+    description: API for Doctor examinations
+    files:
+      - src/app/api/dokter/pemeriksaan/route.ts
+    endpoints:
+      - method: GET
+        path: /api/dokter/pemeriksaan
+        description: List queues for examination
+        auth_required: true
+        response_schema:
+          "200": Queue[]
+  - name: Admin Jadwal API
+    description: API for managing schedules
+    files:
+      - src/app/api/admin/jadwal/route.ts
+    endpoints:
+      - method: GET
+        path: /api/admin/jadwal
+        description: List schedules
+        auth_required: true
+        response_schema:
+          "200": Schedule[]
+known_limitations: []

@@ -1,0 +1,72 @@
+[
+  {
+    "projectId": "48b35231-e89b-4c0d-ab4b-fb54ea55b0ba",
+    "testId": "4a1424b8-b613-4187-8714-49ac5dad3309",
+    "userId": "74c894d8-0041-70d2-9c40-9506186ba9ac",
+    "title": "TC001-get current patient queue without authentication",
+    "description": "Verify that the GET /api/pasien/antrian endpoint returns a 200 status with the current live queue data without requiring authentication.",
+    "code": "import requests\n\ndef test_get_current_patient_queue_without_authentication():\n    base_url = \"http://localhost:3000\"\n    endpoint = \"/api/pasien/antrian\"\n    url = base_url + endpoint\n    headers = {\n        \"Accept\": \"application/json\"\n    }\n    try:\n        response = requests.get(url, headers=headers, timeout=30)\n    except requests.RequestException as e:\n        assert False, f\"Request failed: {e}\"\n    assert response.status_code == 200, f\"Expected status code 200 but got {response.status_code}\"\n    try:\n        data = response.json()\n    except ValueError:\n        assert False, \"Response is not in JSON format\"\n    assert isinstance(data, list), \"Response JSON should be a list (Queue[])\"\n\n\ntest_get_current_patient_queue_without_authentication()",
+    "testStatus": "FAILED",
+    "testError": "Traceback (most recent call last):\n  File \"/var/task/handler.py\", line 258, in run_with_retry\n    exec(code, exec_env)\n  File \"<string>\", line 22, in <module>\n  File \"<string>\", line 14, in test_get_current_patient_queue_without_authentication\nAssertionError: Expected status code 200 but got 401\n",
+    "testType": "BACKEND",
+    "createFrom": "mcp",
+    "created": "2026-03-06T06:47:24.176Z",
+    "modified": "2026-03-06T06:47:41.032Z"
+  },
+  {
+    "projectId": "48b35231-e89b-4c0d-ab4b-fb54ea55b0ba",
+    "testId": "16caa769-dd4e-4520-bf78-ef100378e86c",
+    "userId": "74c894d8-0041-70d2-9c40-9506186ba9ac",
+    "title": "TC002-get doctor examination queue with valid token",
+    "description": "Verify that the GET /api/dokter/pemeriksaan endpoint returns a 200 status with the list of queues for examination when accessed with a valid authentication token.",
+    "code": "import requests\n\nBASE_URL = \"http://localhost:3000\"\nTIMEOUT = 30\n\ndef test_get_doctor_examination_queue_with_valid_token():\n    login_url = f\"{BASE_URL}/api/auth/login\"\n    exam_queue_url = f\"{BASE_URL}/api/dokter/pemeriksaan\"\n\n    doctor_credentials = {\n        \"username\": \"doctor1\",\n        \"password\": \"doctorpassword\"\n    }\n\n    try:\n        # Login to get JWT token\n        login_response = requests.post(login_url, json=doctor_credentials, timeout=TIMEOUT)\n        assert login_response.status_code == 200, f\"Login failed with status {login_response.status_code}\"\n        token = login_response.json().get(\"token\")\n        assert token and isinstance(token, str), \"Invalid or missing token in login response\"\n\n        headers = {\n            \"Authorization\": f\"Bearer {token}\"\n        }\n\n        # Access the examination queue endpoint with valid token\n        response = requests.get(exam_queue_url, headers=headers, timeout=TIMEOUT)\n        assert response.status_code == 200, f\"Expected 200 OK but got {response.status_code}\"\n\n        data = response.json()\n        assert isinstance(data, list), \"Response data should be a list (Queue[])\"\n\n    except requests.RequestException as e:\n        assert False, f\"Request failed with exception: {e}\"\n\ntest_get_doctor_examination_queue_with_valid_token()",
+    "testStatus": "FAILED",
+    "testError": "Traceback (most recent call last):\n  File \"/var/task/handler.py\", line 258, in run_with_retry\n    exec(code, exec_env)\n  File \"<string>\", line 36, in <module>\n  File \"<string>\", line 18, in test_get_doctor_examination_queue_with_valid_token\nAssertionError: Login failed with status 404\n",
+    "testType": "BACKEND",
+    "createFrom": "mcp",
+    "created": "2026-03-06T06:47:24.182Z",
+    "modified": "2026-03-06T06:47:41.199Z"
+  },
+  {
+    "projectId": "48b35231-e89b-4c0d-ab4b-fb54ea55b0ba",
+    "testId": "1188eac6-103e-48fe-9824-76282be0dbf6",
+    "userId": "74c894d8-0041-70d2-9c40-9506186ba9ac",
+    "title": "TC003-get doctor examination queue without token",
+    "description": "Verify that the GET /api/dokter/pemeriksaan endpoint returns a 401 Unauthorized status when accessed without an authentication token.",
+    "code": "import requests\n\nBASE_URL = \"http://localhost:3000\"\n\ndef test_get_doctor_examination_queue_without_token():\n    url = f\"{BASE_URL}/api/dokter/pemeriksaan\"\n    headers = {\n        # No Authorization header provided\n    }\n    try:\n        response = requests.get(url, headers=headers, timeout=30)\n        assert response.status_code == 401, f\"Expected status code 401 but got {response.status_code}\"\n    except requests.exceptions.RequestException as e:\n        assert False, f\"Request failed: {e}\"\n\ntest_get_doctor_examination_queue_without_token()",
+    "testStatus": "FAILED",
+    "testError": "Traceback (most recent call last):\n  File \"/var/task/handler.py\", line 258, in run_with_retry\n    exec(code, exec_env)\n  File \"<string>\", line 16, in <module>\n  File \"<string>\", line 12, in test_get_doctor_examination_queue_without_token\nAssertionError: Expected status code 401 but got 405\n",
+    "testType": "BACKEND",
+    "createFrom": "mcp",
+    "created": "2026-03-06T06:47:24.186Z",
+    "modified": "2026-03-06T06:47:48.067Z"
+  },
+  {
+    "projectId": "48b35231-e89b-4c0d-ab4b-fb54ea55b0ba",
+    "testId": "e4801d36-ae7e-422a-926e-15ee33ce6a23",
+    "userId": "74c894d8-0041-70d2-9c40-9506186ba9ac",
+    "title": "TC004-get admin schedule list with valid token",
+    "description": "Verify that the GET /api/admin/jadwal endpoint returns a 200 status with the list of schedules when accessed with a valid admin authentication token.",
+    "code": "import requests\n\nBASE_URL = \"http://localhost:3000\"\nADMIN_LOGIN_ENDPOINT = f\"{BASE_URL}/api/auth/login\"\nADMIN_JADWAL_ENDPOINT = f\"{BASE_URL}/api/admin/jadwal\"\nTIMEOUT = 30\n\ndef test_get_admin_schedule_list_with_valid_token():\n    admin_credentials = {\n        \"username\": \"admin\",  # Replace with valid admin username\n        \"password\": \"adminpassword\"  # Replace with valid admin password\n    }\n\n    try:\n        # Login as admin to get token\n        login_resp = requests.post(ADMIN_LOGIN_ENDPOINT, json=admin_credentials, timeout=TIMEOUT)\n        assert login_resp.status_code == 200, f\"Admin login failed with status {login_resp.status_code}\"\n        login_data = login_resp.json()\n        assert \"token\" in login_data, \"Token not found in login response\"\n        token = login_data[\"token\"]\n\n        headers = {\n            \"Authorization\": f\"Bearer {token}\"\n        }\n        # Get admin schedule list\n        jadwal_resp = requests.get(ADMIN_JADWAL_ENDPOINT, headers=headers, timeout=TIMEOUT)\n        assert jadwal_resp.status_code == 200, f\"Expected 200 OK but got {jadwal_resp.status_code}\"\n        schedules = jadwal_resp.json()\n        # Ensure response is a list (Schedule[])\n        assert isinstance(schedules, list), \"Response is not a list of schedules\"\n    except requests.RequestException as e:\n        assert False, f\"Request failed with exception: {e}\"\n\ntest_get_admin_schedule_list_with_valid_token()",
+    "testStatus": "FAILED",
+    "testError": "Traceback (most recent call last):\n  File \"/var/task/handler.py\", line 258, in run_with_retry\n    exec(code, exec_env)\n  File \"<string>\", line 34, in <module>\n  File \"<string>\", line 17, in test_get_admin_schedule_list_with_valid_token\nAssertionError: Admin login failed with status 404\n",
+    "testType": "BACKEND",
+    "createFrom": "mcp",
+    "created": "2026-03-06T06:47:24.191Z",
+    "modified": "2026-03-06T06:47:50.510Z"
+  },
+  {
+    "projectId": "48b35231-e89b-4c0d-ab4b-fb54ea55b0ba",
+    "testId": "dfc0e8aa-1266-42ab-82ef-c08f9bb912bc",
+    "userId": "74c894d8-0041-70d2-9c40-9506186ba9ac",
+    "title": "TC005-get admin schedule list without token",
+    "description": "Verify that the GET /api/admin/jadwal endpoint returns a 401 Unauthorized status when accessed without an authentication token.",
+    "code": "import requests\n\nBASE_URL = \"http://localhost:3000\"\n\ndef test_get_admin_schedule_list_without_token():\n    url = f\"{BASE_URL}/api/admin/jadwal\"\n    try:\n        response = requests.get(url, timeout=30)\n    except requests.RequestException as e:\n        assert False, f\"Request to {url} failed: {e}\"\n    assert response.status_code == 401, f\"Expected 401 Unauthorized, got {response.status_code}\"\n    # Optionally, check if response has proper error message or structure\n    # Example:\n    # json_data = response.json()\n    # assert \"error\" in json_data or \"message\" in json_data\n\ntest_get_admin_schedule_list_without_token()",
+    "testStatus": "PASSED",
+    "testError": "",
+    "testType": "BACKEND",
+    "createFrom": "mcp",
+    "created": "2026-03-06T06:47:24.195Z",
+    "modified": "2026-03-06T06:47:39.357Z"
+  }
+]

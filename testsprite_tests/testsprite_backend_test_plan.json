@@ -1,0 +1,27 @@
+[
+  {
+    "id": "TC001",
+    "title": "get current patient queue without authentication",
+    "description": "Verify that the GET /api/pasien/antrian endpoint returns a 200 status with the current live queue data without requiring authentication."
+  },
+  {
+    "id": "TC002",
+    "title": "get doctor examination queue with valid token",
+    "description": "Verify that the GET /api/dokter/pemeriksaan endpoint returns a 200 status with the list of queues for examination when accessed with a valid authentication token."
+  },
+  {
+    "id": "TC003",
+    "title": "get doctor examination queue without token",
+    "description": "Verify that the GET /api/dokter/pemeriksaan endpoint returns a 401 Unauthorized status when accessed without an authentication token."
+  },
+  {
+    "id": "TC004",
+    "title": "get admin schedule list with valid token",
+    "description": "Verify that the GET /api/admin/jadwal endpoint returns a 200 status with the list of schedules when accessed with a valid admin authentication token."
+  },
+  {
+    "id": "TC005",
+    "title": "get admin schedule list without token",
+    "description": "Verify that the GET /api/admin/jadwal endpoint returns a 401 Unauthorized status when accessed without an authentication token."
+  }
+]
