@@ -14,6 +14,10 @@ export default function PasienTagihanPage() {
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState<number | null>(null);
 
+    // Payment Dialog States
+    const [paymentAction, setPaymentAction] = useState<{ id_transaksi: number, metode: "transfer" | "kartu", nominal: number } | null>(null);
+    const [paymentResult, setPaymentResult] = useState<{ success: boolean, message: string } | null>(null);
+
     async function fetchData() {
         try {
             const res = await fetch("/api/pasien/tagihan");
@@ -39,8 +43,15 @@ export default function PasienTagihanPage() {
             minimumFractionDigits: 0,
         }).format(n);
 
-    const handlePayment = async (id_transaksi: number, metode: string) => {
+    const handleConfirmPayment = () => {
+        if (!paymentAction) return;
+        executePayment(paymentAction.id_transaksi, paymentAction.metode);
+    };
+
+    const executePayment = async (id_transaksi: number, metode: string) => {
         setProcessing(id_transaksi);
+        setPaymentAction(null); // Close confirmation modal
+
         try {
             const res = await fetch("/api/pasien/tagihan", {
                 method: "PUT",
@@ -48,14 +59,14 @@ export default function PasienTagihanPage() {
                 body: JSON.stringify({ id_transaksi, metode_pembayaran: metode })
             });
             if (res.ok) {
-                toast.success(`Pembayaran dengan ${metode} berhasil!`);
+                setPaymentResult({ success: true, message: `Pembayaran dengan ${metode === "transfer" ? "Transfer Bank" : "Kartu Kredit"} berhasil diselesaikan!` });
                 fetchData();
             } else {
                 const err = await res.json();
-                toast.error(err.error || "Gagal melakukan pembayaran");
+                setPaymentResult({ success: false, message: err.error || "Gagal melakukan pembayaran. Silakan coba lagi." });
             }
         } catch (error) {
-            toast.error("Terjadi kesalahan jaringan");
+            setPaymentResult({ success: false, message: "Terjadi kesalahan jaringan atau server tidak merespons." });
         } finally {
             setProcessing(null);
         }
@@ -135,14 +146,14 @@ export default function PasienTagihanPage() {
                                                     <p className="text-sm text-center text-muted-foreground">Silakan pilih metode pembayaran untuk menyelesaikan tagihan ini.</p>
                                                     <div className="flex gap-2">
                                                         <Button
-                                                            onClick={() => handlePayment(invoice.id_transaksi, "transfer")}
+                                                            onClick={() => setPaymentAction({ id_transaksi: invoice.id_transaksi, metode: "transfer", nominal: invoice.total_biaya })}
                                                             disabled={processing === invoice.id_transaksi}
                                                             className="flex-1"
                                                         >
                                                             <Wallet className="w-4 h-4 mr-2" /> Transfer Bank
                                                         </Button>
                                                         <Button
-                                                            onClick={() => handlePayment(invoice.id_transaksi, "kartu")}
+                                                            onClick={() => setPaymentAction({ id_transaksi: invoice.id_transaksi, metode: "kartu", nominal: invoice.total_biaya })}
                                                             disabled={processing === invoice.id_transaksi}
                                                             variant="outline"
                                                             className="flex-1 text-blue-600 border-blue-600 hover:bg-blue-50"
@@ -175,6 +186,65 @@ export default function PasienTagihanPage() {
                     ))}
                 </div>
             )}
+
+            {/* Confirmation Dialog */}
+            <Dialog open={!!paymentAction} onOpenChange={(open) => !open && setPaymentAction(null)}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Konfirmasi Pembayaran</DialogTitle>
+                    </DialogHeader>
+                    {paymentAction && (
+                        <div className="space-y-4 py-4">
+                            <p className="text-sm text-muted-foreground text-center">
+                                Apakah Anda yakin ingin memproses pembayaran ini?
+                            </p>
+                            <div className="bg-muted p-4 rounded-lg flex flex-col items-center justify-center space-y-2">
+                                <p className="text-sm font-medium">Total Tagihan</p>
+                                <p className="text-3xl font-bold text-primary">{formatRupiah(paymentAction.nominal)}</p>
+                                <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                                    {paymentAction.metode === "transfer" ? <Wallet className="w-4 h-4" /> : <CreditCard className="w-4 h-4" />}
+                                    <span>Metode: <span className="capitalize font-medium text-foreground">{paymentAction.metode === "transfer" ? "Transfer Bank" : "Kartu Kredit"}</span></span>
+                                </div>
+                            </div>
+                            <div className="flex gap-3 justify-end pt-4">
+                                <Button variant="outline" onClick={() => setPaymentAction(null)}>
+                                    Batal
+                                </Button>
+                                <Button onClick={handleConfirmPayment}>
+                                    Ya, Bayar Sekarang
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
+
+            {/* Result Dialog */}
+            <Dialog open={!!paymentResult} onOpenChange={(open) => !open && setPaymentResult(null)}>
+                <DialogContent className="sm:max-w-sm text-center">
+                    <DialogHeader>
+                        <DialogTitle className="text-center">
+                            {paymentResult?.success ? "Pembayaran Berhasil" : "Pembayaran Gagal"}
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="py-6 flex flex-col items-center justify-center space-y-4">
+                        <div className={`p-4 rounded-full ${paymentResult?.success ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
+                            {paymentResult?.success ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                            )}
+                        </div>
+                        <p className="text-muted-foreground">
+                            {paymentResult?.message}
+                        </p>
+                        <Button className="w-full mt-4" onClick={() => setPaymentResult(null)}>
+                            Tutup
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
         </div>
     );
 }

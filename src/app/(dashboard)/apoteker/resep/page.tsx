@@ -29,7 +29,7 @@ export default function ApotekerResepPage() {
 
   useEffect(() => { fetchData(); }, []);
 
-  async function handleUpdateStatus(id_resep: number, status: "processing" | "completed") {
+  async function handleUpdateStatus(id_resep: number, status: "processing" | "completed" | "rejected") {
     try {
       const res = await fetch("/api/apoteker/resep", {
         method: "PUT",
@@ -37,7 +37,9 @@ export default function ApotekerResepPage() {
         body: JSON.stringify({ id_resep, status }),
       });
       if (res.ok) {
-        toast.success(status === "completed" ? "Resep selesai diproses" : "Resep sedang diproses");
+        if (status === "completed") toast.success("Resep selesai diproses");
+        else if (status === "rejected") toast.success("Resep ditolak");
+        else toast.success("Resep sedang diproses");
         fetchData();
       } else {
         const err = await res.json();
@@ -80,14 +82,24 @@ export default function ApotekerResepPage() {
               </div>
               <div className="flex gap-2">
                 {resep.status === "pending" && (
-                  <Button size="sm" onClick={() => handleUpdateStatus(resep.id_resep, "processing")}>
-                    Proses Resep
-                  </Button>
+                  <>
+                    <Button size="sm" onClick={() => handleUpdateStatus(resep.id_resep, "processing")}>
+                      Proses Resep
+                    </Button>
+                    <Button size="sm" variant="destructive" onClick={() => handleUpdateStatus(resep.id_resep, "rejected")}>
+                      Tolak
+                    </Button>
+                  </>
                 )}
                 {resep.status === "processing" && (
-                  <Button size="sm" onClick={() => handleUpdateStatus(resep.id_resep, "completed")}>
-                    Selesai
-                  </Button>
+                  <>
+                    <Button size="sm" onClick={() => handleUpdateStatus(resep.id_resep, "completed")}>
+                      Selesai
+                    </Button>
+                    <Button size="sm" variant="destructive" onClick={() => handleUpdateStatus(resep.id_resep, "rejected")}>
+                      Tolak
+                    </Button>
+                  </>
                 )}
               </div>
             </div>

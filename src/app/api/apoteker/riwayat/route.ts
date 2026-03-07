@@ -8,16 +8,21 @@ export async function GET() {
         const user = await getAuthUser(supabase);
         await requireRole(supabase, user.id, ["apoteker"]);
 
-        const { data, error } = await (supabase as any)
+        const { createAdminClient } = await import("@/lib/supabase/admin");
+        const adminSupabase = createAdminClient();
+
+        const { data, error } = await (adminSupabase as any)
             .from("resep")
             .select("*, detail_resep(*, obat(nama_obat)), rekam_medis(pasien(nama), transaksi(status))")
-            .eq("status", "completed")
+            .in("status", ["completed", "rejected"])
             .order("tanggal_resep", { ascending: false });
 
         if (error) {
+            console.error("Riwayat API Error:", error);
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
+        console.log("Riwayat API Data length:", data?.length);
         return NextResponse.json(data || []);
     } catch (error: any) {
         return NextResponse.json(

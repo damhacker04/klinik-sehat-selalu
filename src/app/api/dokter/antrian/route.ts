@@ -20,7 +20,21 @@ export async function GET() {
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
-        return NextResponse.json(data || []);
+        // Fetch keluhan dari form_pendaftaran terbaru untuk pasien tersebut
+        const enriched = await Promise.all(
+            (data || []).map(async (item: any) => {
+                const { data: formData } = await (supabase as any)
+                    .from("form_pendaftaran")
+                    .select("keluhan")
+                    .eq("id_pasien", item.id_pasien)
+                    .order("tanggal_daftar", { ascending: false })
+                    .limit(1)
+                    .single();
+                return { ...item, keluhan: formData?.keluhan || "-" };
+            })
+        );
+
+        return NextResponse.json(enriched);
     } catch (error: any) {
         return NextResponse.json(
             { error: error.message || "Server error" },

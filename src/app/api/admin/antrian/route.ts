@@ -79,12 +79,23 @@ export async function PUT(request: NextRequest) {
                 .single();
             const idPasien = antrianInfo?.form_pendaftaran?.id_pasien;
             if (idPasien) {
-                await (supabase as any).from("notifications").insert({
-                    id_pasien: idPasien,
-                    judul: "Antrian Dipanggil",
-                    pesan: "Nomor antrian Anda telah dipanggil. Silakan menuju ruang pemeriksaan.",
-                    dibaca: false,
-                });
+                const { data: pasienData } = await (supabase as any)
+                    .from("pasien")
+                    .select("user_id")
+                    .eq("id_pasien", idPasien)
+                    .single();
+
+                if (pasienData?.user_id) {
+                    const { createAdminClient } = await import("@/lib/supabase/admin");
+                    const adminSupabase = createAdminClient();
+                    await (adminSupabase as any).from("notifications").insert({
+                        recipient_id: pasienData.user_id,
+                        title: "Antrian Dipanggil",
+                        message: "Nomor antrian Anda telah dipanggil. Silakan menuju ruang pemeriksaan.",
+                        type: "antrian",
+                        channel: "push"
+                    });
+                }
             }
         }
 

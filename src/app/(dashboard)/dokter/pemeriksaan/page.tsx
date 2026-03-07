@@ -88,6 +88,8 @@ export default function DokterPemeriksaanPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-sm space-y-1 text-muted-foreground mb-4 p-3 rounded-lg bg-muted/50">
+              <p><span className="font-medium text-foreground">Keluhan: </span>{selectedPatient.keluhan || "-"}</p>
+              <div className="border-t border-muted-foreground/20 my-2"></div>
               <p>TD: {selectedPatient.tekanan_darah || "-"}</p>
               <p>Suhu: {selectedPatient.suhu || "-"}°C</p>
               <p>BB: {selectedPatient.berat_badan || "-"} kg</p>
@@ -129,7 +131,8 @@ export default function DokterPemeriksaanPage() {
             <div key={item.id_rekam} className="flex items-center justify-between rounded-lg border p-4">
               <div>
                 <p className="font-medium">{item.pasien?.nama || "Pasien"}</p>
-                <p className="text-sm text-muted-foreground">TD: {item.tekanan_darah || "-"} | Suhu: {item.suhu || "-"}°C | BB: {item.berat_badan || "-"} kg</p>
+                <p className="text-sm text-muted-foreground mb-1"><span className="font-medium">Keluhan:</span> {item.keluhan || "-"}</p>
+                <p className="text-xs text-muted-foreground/80">TD: {item.tekanan_darah || "-"} | Suhu: {item.suhu || "-"}°C | BB: {item.berat_badan || "-"} kg</p>
               </div>
               <Button size="sm" onClick={() => setSelectedPatient(item)}>Periksa</Button>
             </div>

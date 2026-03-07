@@ -35,9 +35,9 @@ export async function PUT(request: NextRequest) {
         const body = await request.json();
         const { id_resep, status } = body;
 
-        if (!id_resep || !["processing", "completed"].includes(status)) {
+        if (!id_resep || !["processing", "completed", "rejected"].includes(status)) {
             return NextResponse.json(
-                { error: "id_resep dan status (processing/completed) wajib" },
+                { error: "id_resep dan status (processing/completed/rejected) wajib" },
                 { status: 400 }
             );
         }

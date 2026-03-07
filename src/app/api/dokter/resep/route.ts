@@ -18,6 +18,26 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Validate stock
+        for (const item of items) {
+            const { data: obatData } = await (supabase as any)
+                .from("obat")
+                .select("nama_obat, stok")
+                .eq("id_obat", item.id_obat)
+                .single();
+
+            if (!obatData) {
+                return NextResponse.json({ error: `Obat ID ${item.id_obat} tidak ditemukan` }, { status: 400 });
+            }
+
+            if (obatData.stok < item.jumlah) {
+                return NextResponse.json(
+                    { error: `Stok obat ${obatData.nama_obat} tidak mencukupi (Sisa: ${obatData.stok}, Diminta: ${item.jumlah})` },
+                    { status: 400 }
+                );
+            }
+        }
+
         // Create resep
         const { data: resep, error: resepError } = await (supabase as any)
             .from("resep")

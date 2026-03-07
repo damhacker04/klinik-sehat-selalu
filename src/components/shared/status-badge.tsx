@@ -61,8 +61,8 @@ const statusConfig: Record<
     className: "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800",
   },
   draft: {
-    label: "Draft",
-    className: "bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-950 dark:text-slate-300 dark:border-slate-800",
+    label: "Belum Bayar",
+    className: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800",
   },
   paid: {
     label: "Lunas",
