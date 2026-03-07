@@ -44,7 +44,8 @@ export default function KasirDashboard() {
         if (statsRes.ok) setStats(await statsRes.json());
         if (transaksiRes.ok) {
           const data = await transaksiRes.json();
-          setDraftTransaksi(Array.isArray(data) ? data : []);
+          const drafts = Array.isArray(data) ? data.filter((t: any) => t.status === "draft") : [];
+          setDraftTransaksi(drafts);
         }
       } catch (err) {
         console.error("Failed to fetch kasir data:", err);

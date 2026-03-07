@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -21,11 +21,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "sonner";
-import { ClipboardList, CheckCircle2 } from "lucide-react";
+import { ClipboardList, CheckCircle2, History } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
 
 export default function PendaftaranPage() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [riwayat, setRiwayat] = useState<any[]>([]);
+  const [loadingRiwayat, setLoadingRiwayat] = useState(true);
 
   const form = useForm<FormPendaftaranInput>({
     resolver: zodResolver(formPendaftaranSchema),
@@ -34,6 +37,24 @@ export default function PendaftaranPage() {
       permintaan_khusus: "",
     },
   });
+
+  async function fetchRiwayat() {
+    try {
+      const res = await fetch("/api/pasien/pendaftaran");
+      if (res.ok) {
+        const data = await res.json();
+        setRiwayat(data || []);
+      }
+    } catch (error) {
+      console.error("Gagal mendownload riwayat:", error);
+    } finally {
+      setLoadingRiwayat(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchRiwayat();
+  }, []);
 
   async function onSubmit(data: FormPendaftaranInput) {
     setLoading(true);
@@ -52,6 +73,7 @@ export default function PendaftaranPage() {
 
       toast.success("Pendaftaran berhasil dikirim!");
       setSubmitted(true);
+      fetchRiwayat(); // Refresh history
     } catch {
       toast.error("Terjadi kesalahan jaringan");
     } finally {
@@ -99,62 +121,105 @@ export default function PendaftaranPage() {
         description="Isi form berikut untuk mendaftar kunjungan ke klinik"
       />
 
-      <Card className="max-w-2xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <ClipboardList className="h-5 w-5 text-blue-500" />
-            Form Pendaftaran
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-              <FormField
-                control={form.control}
-                name="keluhan"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Keluhan Utama *</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Jelaskan keluhan atau gejala yang Anda rasakan..."
-                        className="min-h-[120px] resize-none"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="permintaan_khusus"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Permintaan Khusus (opsional)</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Misalnya: ingin ditangani dokter tertentu, alergi obat tertentu, dll."
-                        className="min-h-[80px] resize-none"
-                        {...field}
-                        value={field.value || ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button
-                type="submit"
-                className="w-full sm:w-auto"
-                disabled={loading}
-              >
-                {loading ? "Mengirim..." : "Kirim Pendaftaran"}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 lg:grid-cols-2 items-start">
+        {/* Kolom Kiri: Form */}
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <ClipboardList className="h-5 w-5 text-blue-500" />
+              Form Pendaftaran Baru
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                <FormField
+                  control={form.control}
+                  name="keluhan"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Keluhan Utama *</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Jelaskan keluhan atau gejala yang Anda rasakan..."
+                          className="min-h-[120px] resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="permintaan_khusus"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Permintaan Khusus (opsional)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Misalnya: ingin ditangani dokter tertentu, alergi obat tertentu, dll."
+                          className="min-h-[80px] resize-none"
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="submit"
+                  className="w-full sm:w-auto"
+                  disabled={loading}
+                >
+                  {loading ? "Mengirim..." : "Kirim Pendaftaran"}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+
+        {/* Kolom Kanan: Riwayat */}
+        <Card className="w-full h-full">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <History className="h-5 w-5 text-blue-500" />
+              Riwayat Pendaftaran
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loadingRiwayat ? (
+              <div className="text-center py-4 text-muted-foreground text-sm">
+                Memuat riwayat...
+              </div>
+            ) : riwayat.length === 0 ? (
+              <EmptyState title="Belum Ada Riwayat" description="Anda belum membuat pendaftaran apapun." icon={History} />
+            ) : (
+              <div className="space-y-4">
+                {riwayat.map((item) => (
+                  <div key={item.id_form} className="flex flex-col sm:flex-row sm:items-start justify-between rounded-lg border p-4 gap-4">
+                    <div>
+                      <p className="font-semibold">{new Date(item.tanggal_daftar).toLocaleDateString("id-ID", {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric"
+                      })}</p>
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                        {item.keluhan}
+                      </p>
+                    </div>
+                    <div className="shrink-0">
+                      <StatusBadge status={item.status} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

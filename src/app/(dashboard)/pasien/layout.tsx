@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Bell,
   User,
+  CreditCard,
 } from "lucide-react";
 
 const navItems: NavItem[] = [
@@ -19,6 +20,7 @@ const navItems: NavItem[] = [
   { title: "Pendaftaran", href: "/pasien/pendaftaran", icon: ClipboardList },
   { title: "Antrian", href: "/pasien/antrian", icon: Clock },
   { title: "Riwayat Medis", href: "/pasien/riwayat", icon: FileText },
+  { title: "Tagihan Saya", href: "/pasien/tagihan", icon: CreditCard },
   { title: "Notifikasi", href: "/pasien/notifikasi", icon: Bell },
   { title: "Feedback", href: "/pasien/feedback", icon: MessageSquare },
 ];

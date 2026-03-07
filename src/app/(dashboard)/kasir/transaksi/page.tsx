@@ -52,6 +52,7 @@ export default function KasirTransaksiPage() {
   const [form, setForm] = useState({
     id_pasien: "",
     metode_pembayaran: "",
+    id_rekam: null as number | null,
   });
   const [items, setItems] = useState<ItemRow[]>([
     { keterangan: "", biaya: "" },
@@ -135,6 +136,7 @@ export default function KasirTransaksiPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id_pasien: parseInt(form.id_pasien),
+          id_rekam: form.id_rekam,
           items: validItems.map((i) => ({
             keterangan: i.keterangan,
             biaya: parseInt(i.biaya),
@@ -144,7 +146,7 @@ export default function KasirTransaksiPage() {
       });
       if (res.ok) {
         toast.success("Transaksi berhasil dibuat");
-        setForm({ id_pasien: "", metode_pembayaran: "" });
+        setForm({ id_pasien: "", metode_pembayaran: "", id_rekam: null });
         setItems([{ keterangan: "", biaya: "" }]);
         setOpen(false);
         fetchData();

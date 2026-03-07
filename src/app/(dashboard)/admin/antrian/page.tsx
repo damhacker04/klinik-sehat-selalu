@@ -122,8 +122,8 @@ export default function AdminAntrianPage() {
                 <div className="flex items-center gap-2">
                   <span
                     className={`text-xs px-2 py-1 rounded-full ${item.status === "waiting"
-                        ? "bg-amber-100 text-amber-700"
-                        : "bg-blue-100 text-blue-700"
+                      ? "bg-amber-100 text-amber-700"
+                      : "bg-blue-100 text-blue-700"
                       }`}
                   >
                     {item.status}
@@ -131,11 +131,6 @@ export default function AdminAntrianPage() {
                   {item.status === "waiting" && (
                     <Button size="sm" onClick={() => handleAction(item.id_antrian, "call")}>
                       Panggil
-                    </Button>
-                  )}
-                  {item.status === "called" && (
-                    <Button size="sm" variant="outline" onClick={() => handleAction(item.id_antrian, "done")}>
-                      Selesai
                     </Button>
                   )}
                 </div>

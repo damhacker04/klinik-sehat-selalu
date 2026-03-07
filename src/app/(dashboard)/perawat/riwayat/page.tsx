@@ -39,8 +39,14 @@ export default function PerawatRiwayatPage() {
                 <p className="font-medium">{item.pasien?.nama || "Pasien"}</p>
                 <span className="text-sm text-muted-foreground">{new Date(item.tanggal_periksa).toLocaleDateString("id-ID")}</span>
               </div>
-              <div className="grid gap-1 text-sm text-muted-foreground">
-                <p>TD: {item.tekanan_darah || "-"} | Suhu: {item.suhu || "-"}°C | BB: {item.berat_badan || "-"} kg</p>
+              <div className="grid gap-1 mt-3 text-sm text-muted-foreground">
+                <p>TD: <span className="font-medium text-foreground">{item.tekanan_darah || "-"}</span> | Suhu: <span className="font-medium text-foreground">{item.suhu || "-"}°C</span> | BB: <span className="font-medium text-foreground">{item.berat_badan || "-"} kg</span></p>
+                {item.catatan && (
+                  <div className="mt-2 p-3 bg-muted/50 rounded-md">
+                    <p className="font-semibold text-xs uppercase tracking-wider text-muted-foreground mb-1">Catatan :</p>
+                    <p className="text-foreground">{item.catatan}</p>
+                  </div>
+                )}
               </div>
             </div>
           ))}

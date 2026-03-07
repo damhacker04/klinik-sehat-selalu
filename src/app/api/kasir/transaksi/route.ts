@@ -124,17 +124,32 @@ export async function PUT(request: NextRequest) {
         }
 
         // Auto-notification: notify pasien pembayaran selesai
+        const { createAdminClient } = await import("@/lib/supabase/admin");
+        const adminSupabase = createAdminClient();
+
         const { data: transaksiInfo } = await (supabase as any)
             .from("transaksi")
-            .select("id_pasien, total_biaya")
+            .select("id_pasien, total_biaya, pasien(user_id)")
             .eq("id_transaksi", id_transaksi)
             .single();
-        if (transaksiInfo?.id_pasien) {
-            await (supabase as any).from("notifications").insert({
-                id_pasien: transaksiInfo.id_pasien,
-                judul: "Pembayaran Selesai",
-                pesan: `Pembayaran sebesar Rp ${(transaksiInfo.total_biaya || 0).toLocaleString("id-ID")} telah berhasil diproses.`,
-                dibaca: false,
+
+        if (transaksiInfo?.pasien?.user_id) {
+            const userId = transaksiInfo.pasien.user_id;
+
+            // Delete pending tagihan notification
+            await (adminSupabase as any)
+                .from("notifications")
+                .delete()
+                .eq("recipient_id", userId)
+                .eq("type", "pembayaran_done");
+
+            // Insert new success notification
+            await (adminSupabase as any).from("notifications").insert({
+                recipient_id: userId,
+                title: "Pembayaran Berhasil",
+                message: `Pembayaran sebesar Rp ${(transaksiInfo.total_biaya || 0).toLocaleString("id-ID")} telah berhasil diproses. Terima kasih!`,
+                type: "system",
+                channel: "push"
             });
         }
 

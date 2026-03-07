@@ -3,11 +3,12 @@
 import { SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar, type NavItem } from "@/components/shared/app-sidebar";
 import { useUser } from "@/hooks/use-user";
-import { Home, Pill, Package, AlertTriangle, ShoppingCart } from "lucide-react";
+import { Home, Pill, Package, AlertTriangle, ShoppingCart, History } from "lucide-react";
 
 const navItems: NavItem[] = [
   { title: "Dashboard", href: "/apoteker", icon: Home },
   { title: "Resep Masuk", href: "/apoteker/resep", icon: Pill },
+  { title: "Riwayat Resep", href: "/apoteker/riwayat", icon: History },
   { title: "Stok Obat", href: "/apoteker/stok", icon: Package },
   { title: "Stok Menipis", href: "/apoteker/stok-menipis", icon: AlertTriangle },
   { title: "Pengadaan", href: "/apoteker/pengadaan", icon: ShoppingCart },

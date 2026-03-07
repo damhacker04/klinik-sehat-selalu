@@ -40,6 +40,7 @@ export default function DokterRekamMedisPage() {
                 {item.tekanan_darah && <p>TD: {item.tekanan_darah}</p>}
                 {item.diagnosa && <p className="text-foreground font-medium">Diagnosa: {item.diagnosa}</p>}
                 {item.catatan && <p>Catatan: {item.catatan}</p>}
+                {item.rujukan && <p className="text-red-500 font-medium">Rujukan: {item.rujukan}</p>}
               </div>
             </div>
           ))}

@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Pill } from "lucide-react";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
 export default function ApotekerResepPage() {
@@ -63,7 +64,12 @@ export default function ApotekerResepPage() {
                     Tanggal: {new Date(resep.tanggal_resep).toLocaleDateString("id-ID")}
                   </p>
                 </div>
-                <StatusBadge status={resep.status} />
+                <div className="flex items-center gap-2">
+                  <Badge variant={resep.rekam_medis?.transaksi?.[0]?.status === "paid" ? "default" : "secondary"}>
+                    {resep.rekam_medis?.transaksi?.[0]?.status === "paid" ? "Tagihan Lunas" : "Belum Lunas"}
+                  </Badge>
+                  <StatusBadge status={resep.status} />
+                </div>
               </div>
               <div className="space-y-1">
                 {(resep.detail_resep || []).map((d: any, i: number) => (

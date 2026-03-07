@@ -19,11 +19,12 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { toast } from "sonner";
-import { User, Save, Loader2 } from "lucide-react";
+import { User, Save, Loader2, Edit2, X } from "lucide-react";
 
 export default function ProfilPasienPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     const form = useForm<PasienInput>({
         resolver: zodResolver(pasienSchema),
@@ -81,11 +82,39 @@ export default function ProfilPasienPage() {
             }
 
             toast.success("Profil berhasil diperbarui!");
+            setIsEditing(false);
         } catch {
             toast.error("Terjadi kesalahan jaringan");
         } finally {
             setSaving(false);
         }
+    }
+
+    function handleCancel() {
+        // Reset form to its current actual values without saving
+        setIsEditing(false);
+        form.reset();
+        // Since reset goes back to defaultValues, let's keep it simple or re-fetch
+        // But the current implementation modifies the form values directly, so resetting 
+        // to defaultValues might clear out unsaved changes back to saved ones if defaultValues
+        // were set properly initially. However, fetchProfil sets form.reset(data).
+        // Since we want to re-load from defaultValues, we can just call fetchProfil again
+        // to ensure Data is pulled correctly from what's currently saved.
+        setLoading(true);
+        fetch("/api/pasien/profil")
+            .then((res) => res.json())
+            .then((data) => {
+                form.reset({
+                    nama: data.nama || "",
+                    nik: data.nik === "-" ? "" : data.nik || "",
+                    tanggal_lahir: data.tanggal_lahir || "",
+                    alamat: data.alamat || "",
+                    no_hp: data.no_hp || "",
+                    email: data.email || "",
+                    riwayat_kesehatan: data.riwayat_kesehatan || "",
+                });
+            })
+            .finally(() => setLoading(false));
     }
 
     return (
@@ -96,11 +125,22 @@ export default function ProfilPasienPage() {
             />
 
             <Card className="max-w-2xl">
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="flex items-center gap-2 text-lg">
                         <User className="h-5 w-5 text-blue-500" />
                         Informasi Pribadi
                     </CardTitle>
+                    {!loading && !isEditing && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setIsEditing(true)}
+                            className="h-8 gap-1 hidden sm:flex"
+                        >
+                            <Edit2 className="h-3.5 w-3.5" />
+                            <span>Edit Profil</span>
+                        </Button>
+                    )}
                 </CardHeader>
                 <CardContent>
                     {loading ? (
@@ -123,7 +163,7 @@ export default function ProfilPasienPage() {
                                             <FormItem>
                                                 <FormLabel>Nama Lengkap *</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="Nama lengkap" {...field} />
+                                                    <Input disabled={!isEditing} placeholder="Nama lengkap" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -137,6 +177,7 @@ export default function ProfilPasienPage() {
                                                 <FormLabel>NIK *</FormLabel>
                                                 <FormControl>
                                                     <Input
+                                                        disabled={!isEditing}
                                                         placeholder="16 digit NIK"
                                                         maxLength={16}
                                                         {...field}
@@ -156,7 +197,7 @@ export default function ProfilPasienPage() {
                                             <FormItem>
                                                 <FormLabel>Tanggal Lahir</FormLabel>
                                                 <FormControl>
-                                                    <Input type="date" {...field} value={field.value || ""} />
+                                                    <Input disabled={!isEditing} type="date" {...field} value={field.value || ""} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -170,6 +211,7 @@ export default function ProfilPasienPage() {
                                                 <FormLabel>No. HP</FormLabel>
                                                 <FormControl>
                                                     <Input
+                                                        disabled={!isEditing}
                                                         placeholder="08xxxxxxxxxx"
                                                         {...field}
                                                         value={field.value || ""}
@@ -189,6 +231,7 @@ export default function ProfilPasienPage() {
                                             <FormLabel>Email</FormLabel>
                                             <FormControl>
                                                 <Input
+                                                    disabled={!isEditing}
                                                     type="email"
                                                     placeholder="email@example.com"
                                                     {...field}
@@ -208,6 +251,7 @@ export default function ProfilPasienPage() {
                                             <FormLabel>Alamat</FormLabel>
                                             <FormControl>
                                                 <Textarea
+                                                    disabled={!isEditing}
                                                     placeholder="Alamat lengkap"
                                                     className="min-h-[80px] resize-none"
                                                     {...field}
@@ -227,6 +271,7 @@ export default function ProfilPasienPage() {
                                             <FormLabel>Riwayat Kesehatan</FormLabel>
                                             <FormControl>
                                                 <Textarea
+                                                    disabled={!isEditing}
                                                     placeholder="Alergi, penyakit bawaan, riwayat operasi, dll."
                                                     className="min-h-[100px] resize-none"
                                                     {...field}
@@ -238,23 +283,50 @@ export default function ProfilPasienPage() {
                                     )}
                                 />
 
-                                <Button
-                                    type="submit"
-                                    className="w-full sm:w-auto"
-                                    disabled={saving}
-                                >
-                                    {saving ? (
-                                        <>
-                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                            Menyimpan...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Save className="h-4 w-4 mr-2" />
-                                            Simpan Profil
-                                        </>
-                                    )}
-                                </Button>
+                                {isEditing ? (
+                                    <div className="flex gap-3 pt-4">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={handleCancel}
+                                            disabled={saving}
+                                            className="w-full sm:w-auto"
+                                        >
+                                            <X className="h-4 w-4 mr-2" />
+                                            Batal
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            className="w-full sm:w-auto"
+                                            disabled={saving}
+                                        >
+                                            {saving ? (
+                                                <>
+                                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                                    Menyimpan...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Save className="h-4 w-4 mr-2" />
+                                                    Simpan Profil
+                                                </>
+                                            )}
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <div className="sm:hidden mt-6">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => setIsEditing(true)}
+                                            className="w-full"
+                                        >
+                                            <Edit2 className="h-4 w-4 mr-2" />
+                                            Edit Profil
+                                        </Button>
+                                    </div>
+                                )}
+
                             </form>
                         </Form>
                     )}

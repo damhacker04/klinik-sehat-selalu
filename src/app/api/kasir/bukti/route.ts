@@ -28,7 +28,7 @@ export async function GET() {
         // List all paid transactions (as receipts)
         const { data, error } = await (supabase as any)
             .from("transaksi")
-            .select("*, pasien(nama)")
+            .select("*, pasien(nama), rincian_transaksi(*)")
             .eq("status", "paid")
             .order("tanggal_bayar", { ascending: false });
 

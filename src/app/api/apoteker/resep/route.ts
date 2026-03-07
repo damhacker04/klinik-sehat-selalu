@@ -10,7 +10,7 @@ export async function GET() {
 
         const { data, error } = await (supabase as any)
             .from("resep")
-            .select("*, detail_resep(*, obat(nama_obat)), rekam_medis(pasien(nama))")
+            .select("*, detail_resep(*, obat(nama_obat)), rekam_medis(pasien(nama), transaksi(status))")
             .in("status", ["pending", "processing"])
             .order("tanggal_resep", { ascending: true });
 
@@ -74,21 +74,90 @@ export async function PUT(request: NextRequest) {
             }
         }
 
-        // Auto-notification: notify pasien when resep completed
+        // Auto Billing & Notification
         if (status === "completed") {
-            const { data: resepInfo } = await (supabase as any)
+            const { createAdminClient } = await import("@/lib/supabase/admin");
+            const adminSupabase = createAdminClient();
+
+            const { data: resepInfo } = await (adminSupabase as any)
                 .from("resep")
-                .select("rekam_medis(id_pasien)")
+                .select("id_rekam, rekam_medis(id_pasien), detail_resep(jumlah, obat(nama_obat, harga))")
                 .eq("id_resep", id_resep)
                 .single();
+
             const idPasien = resepInfo?.rekam_medis?.id_pasien;
-            if (idPasien) {
-                await (supabase as any).from("notifications").insert({
-                    id_pasien: idPasien,
-                    judul: "Resep Siap",
-                    pesan: "Resep obat Anda telah selesai disiapkan. Silakan menuju apotek untuk mengambil obat.",
-                    dibaca: false,
+            if (idPasien && resepInfo.id_rekam) {
+                const items = [];
+                items.push({
+                    keterangan: "Jasa Konsultasi / Pemeriksaan Medis",
+                    biaya: 50000
                 });
+
+                for (const detail of resepInfo.detail_resep || []) {
+                    const obatNama = detail.obat?.nama_obat || "Obat";
+                    const obatHarga = detail.obat?.harga || 0;
+                    const jumlah = detail.jumlah || 0;
+                    items.push({
+                        keterangan: `Obat: ${obatNama} (${jumlah}x)`,
+                        biaya: obatHarga * jumlah
+                    });
+                }
+
+                const totalBiaya = items.reduce((sum: number, item: any) => sum + item.biaya, 0);
+
+                // Ambil id_kasir pertama sebagai default untuk draft (karena id_kasir NOT NULL)
+                const { data: kasirDefault } = await (adminSupabase as any)
+                    .from("kasir")
+                    .select("id_kasir")
+                    .limit(1)
+                    .single();
+
+                const { data: transaksi, error: transError } = await (adminSupabase as any)
+                    .from("transaksi")
+                    .insert({
+                        id_pasien: idPasien,
+                        id_rekam: resepInfo.id_rekam,
+                        total_biaya: totalBiaya,
+                        status: "draft",
+                        id_kasir: kasirDefault?.id_kasir || 1
+                    })
+                    .select()
+                    .single();
+
+                if (transError) {
+                    console.error("Auto-Billing Transaksi Error:", transError);
+                }
+
+                if (transaksi) {
+                    const rincianItems = items.map((item: any) => ({
+                        id_transaksi: transaksi.id_transaksi,
+                        keterangan: item.keterangan,
+                        biaya: item.biaya
+                    }));
+                    await (adminSupabase as any)
+                        .from("rincian_transaksi")
+                        .insert(rincianItems);
+                }
+
+                const { data: pasienData } = await (adminSupabase as any)
+                    .from("pasien")
+                    .select("user_id")
+                    .eq("id_pasien", idPasien)
+                    .single();
+
+                if (pasienData?.user_id) {
+                    const { error: notifError } = await (adminSupabase as any).from("notifications").insert({
+                        recipient_id: pasienData.user_id,
+                        title: "Resep & Tagihan Siap",
+                        message: "Resep obat Anda telah selesai disiapkan. Silakan menuju kasir untuk melakukan pembayaran tagihan Anda.",
+                        type: "pembayaran_done",
+                        channel: "push"
+                    });
+
+                    if (notifError) {
+                        console.error("Auto-Billing Notif Error:", notifError);
+                    }
+                }
             }
         }
 
