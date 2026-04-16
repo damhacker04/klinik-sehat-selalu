@@ -1,47 +1,116 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   feedbackSchema,
   type FeedbackInput,
 } from "@/lib/validations/patient";
-import { useEffect } from "react";
-import { PageHeader } from "@/components/shared/page-header";
-import { EmptyState } from "@/components/shared/empty-state";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { toast } from "sonner";
-import { MessageSquare, Star } from "lucide-react";
+import {
+  Star,
+  Send,
+  ShieldCheck,
+  Heart,
+  History,
+  MessageSquare,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface Feedback {
+  id_feedback: number;
+  id_pasien: number;
+  rating: number;
+  komentar: string | null;
+  tanggal_feedback: string;
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const GLASS =
+  "bg-white/70 dark:bg-[rgba(25,30,51,0.6)] backdrop-blur-md border border-slate-200/80 dark:border-white/10";
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function fmtDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+// ─── Star Row (display-only) ──────────────────────────────────────────────────
+
+function StarRow({
+  rating,
+  size = "sm",
+}: {
+  rating: number;
+  size?: "sm" | "lg";
+}) {
+  const cls = size === "lg" ? "w-12 h-12" : "w-4 h-4";
+  return (
+    <div className={`flex gap-${size === "lg" ? "2" : "0.5"}`}>
+      {[1, 2, 3, 4, 5].map((s) => (
+        <Star
+          key={s}
+          className={cn(
+            cls,
+            "transition-colors",
+            rating >= s
+              ? "fill-amber-400 text-amber-400"
+              : "text-slate-300 dark:text-slate-600"
+          )}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── History Card ─────────────────────────────────────────────────────────────
+
+function HistoryCard({ fb }: { fb: Feedback }) {
+  return (
+    <div
+      className={`${GLASS} rounded-xl p-5 hover:border-primary/50 transition-colors duration-200`}
+    >
+      <div className="flex justify-between items-start mb-3">
+        <StarRow rating={fb.rating} size="sm" />
+        <span className="text-[10px] text-slate-500 font-medium shrink-0 ml-2">
+          {fmtDate(fb.tanggal_feedback)}
+        </span>
+      </div>
+      <p className="text-sm text-slate-600 dark:text-slate-400 italic line-clamp-2">
+        {fb.komentar
+          ? `"${fb.komentar}"`
+          : <span className="not-italic text-slate-400 dark:text-slate-600">Tidak ada komentar</span>}
+      </p>
+    </div>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function FeedbackPage() {
   const [loading, setLoading] = useState(false);
   const [hoveredStar, setHoveredStar] = useState(0);
-  const [feedbackList, setFeedbackList] = useState<any[]>([]);
+  const [feedbackList, setFeedbackList] = useState<Feedback[]>([]);
+  const [showAll, setShowAll] = useState(false);
 
   const form = useForm<FeedbackInput>({
     resolver: zodResolver(feedbackSchema),
-    defaultValues: {
-      rating: 0,
-      komentar: "",
-    },
+    defaultValues: { rating: 0, komentar: "" },
   });
 
   const ratingValue = form.watch("rating");
+  const displayList = showAll ? feedbackList : feedbackList.slice(0, 3);
 
   useEffect(() => {
-    async function fetchFeedback() {
+    (async () => {
       try {
         const res = await fetch("/api/pasien/feedback");
         if (res.ok) {
@@ -51,8 +120,7 @@ export default function FeedbackPage() {
       } catch (err) {
         console.error("Failed to fetch feedback:", err);
       }
-    }
-    fetchFeedback();
+    })();
   }, []);
 
   async function onSubmit(data: FeedbackInput) {
@@ -66,16 +134,17 @@ export default function FeedbackPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        toast.error(err.error || "Gagal mengirim feedback");
+        toast.error(err.error || "Gagal mengirim penilaian");
         return;
       }
 
       const result = await res.json();
-      toast.success("Terima kasih atas feedback Anda!");
+      toast.success("Penilaian berhasil dikirim!", {
+        description: "Terima kasih atas masukan Anda.",
+      });
       form.reset();
-      // Add to local list
       if (result.data) {
-        setFeedbackList((prev) => [result.data, ...prev]);
+        setFeedbackList((prev) => [result.data as Feedback, ...prev]);
       }
     } catch {
       toast.error("Terjadi kesalahan jaringan");
@@ -85,127 +154,171 @@ export default function FeedbackPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <PageHeader
-        title="Feedback"
-        description="Berikan penilaian dan saran untuk layanan kami"
-      />
+    <div className="max-w-[1000px] mx-auto space-y-10 pb-12">
+      {/* ── Page Header ── */}
+      <div className="flex flex-col gap-2">
+        <h1 className="text-slate-900 dark:text-slate-100 text-4xl font-black leading-tight tracking-tight">
+          Sampaikan Penilaian Anda
+        </h1>
+        <p className="text-slate-600 dark:text-slate-400 text-lg">
+          Bantu kami jadi lebih baik untuk melayani Anda!
+        </p>
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Form Feedback */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <MessageSquare className="h-5 w-5 text-blue-500" />
-              Beri Feedback
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-5"
-              >
-                <FormField
-                  control={form.control}
-                  name="rating"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Rating *</FormLabel>
-                      <FormControl>
-                        <div className="flex gap-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <button
-                              key={star}
-                              type="button"
-                              className="p-1 transition-transform hover:scale-110"
-                              onMouseEnter={() => setHoveredStar(star)}
-                              onMouseLeave={() => setHoveredStar(0)}
-                              onClick={() => field.onChange(star)}
-                            >
-                              <Star
-                                className={cn(
-                                  "h-8 w-8 transition-colors",
-                                  (hoveredStar || ratingValue) >= star
-                                    ? "fill-amber-400 text-amber-400"
-                                    : "text-muted-foreground/30"
-                                )}
-                              />
-                            </button>
-                          ))}
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="komentar"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Komentar (opsional)</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Ceritakan pengalaman Anda di klinik kami..."
-                          className="min-h-[120px] resize-none"
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" disabled={loading}>
-                  {loading ? "Mengirim..." : "Kirim Feedback"}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-
-        {/* Riwayat Feedback */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Riwayat Feedback</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {feedbackList.length === 0 ? (
-              <EmptyState
-                icon={MessageSquare}
-                title="Belum Ada Feedback"
-                description="Feedback yang sudah Anda kirim akan muncul di sini."
-              />
-            ) : (
-              <div className="space-y-3">
-                {feedbackList.map((fb: any) => (
-                  <div key={fb.id_feedback} className="rounded-lg border p-4">
-                    <div className="flex items-center gap-1 mb-2">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          className={cn(
-                            "h-4 w-4",
-                            fb.rating >= star
-                              ? "fill-amber-400 text-amber-400"
-                              : "text-muted-foreground/30"
-                          )}
-                        />
-                      ))}
-                    </div>
-                    {fb.komentar && (
-                      <p className="text-sm text-muted-foreground">{fb.komentar}</p>
+      {/* ── Main 3-col grid ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Form card (col-span-2) */}
+        <div className={`lg:col-span-2 ${GLASS} rounded-xl p-8 flex flex-col gap-8 shadow-xl`}>
+          {/* Star picker */}
+          <div className="flex flex-col gap-4">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+              Beri Bintang untuk Layanan Hari Ini
+            </h3>
+            <div className="flex gap-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onMouseEnter={() => setHoveredStar(star)}
+                  onMouseLeave={() => setHoveredStar(0)}
+                  onClick={() => form.setValue("rating", star, { shouldValidate: true })}
+                  className="transition-transform hover:scale-110 focus:outline-none"
+                  aria-label={`Beri ${star} bintang`}
+                >
+                  <Star
+                    className={cn(
+                      "w-12 h-12 transition-colors duration-150",
+                      (hoveredStar || ratingValue) >= star
+                        ? "fill-amber-400 text-amber-400"
+                        : "text-slate-300 dark:text-slate-600"
                     )}
-                    <p className="text-xs text-muted-foreground mt-2">
-                      {new Date(fb.tanggal_feedback).toLocaleDateString("id-ID")}
-                    </p>
-                  </div>
-                ))}
-              </div>
+                  />
+                </button>
+              ))}
+            </div>
+            {form.formState.errors.rating && (
+              <p className="text-red-500 text-sm">
+                {form.formState.errors.rating.message}
+              </p>
             )}
-          </CardContent>
-        </Card>
+          </div>
+
+          {/* Textarea */}
+          <div className="flex flex-col gap-3">
+            <label
+              htmlFor="komentar"
+              className="text-base font-semibold text-slate-700 dark:text-slate-300"
+            >
+              Catatan atau Ulasan
+            </label>
+            <textarea
+              id="komentar"
+              {...form.register("komentar")}
+              placeholder="Ceritakan pengalaman Anda di klinik kami..."
+              rows={6}
+              className="w-full rounded-xl bg-slate-100 dark:bg-slate-900/50 border-0 p-5 text-slate-900 dark:text-white placeholder:text-slate-500 focus:ring-2 focus:ring-primary min-h-[180px] text-lg resize-none outline-none transition-shadow"
+            />
+          </div>
+
+          {/* Submit */}
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={loading}
+              className="bg-primary text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-primary/90 active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Mengirim...</span>
+                </>
+              ) : (
+                <>
+                  <span>Kirim Penilaian</span>
+                  <Send className="w-5 h-5" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Info card (col-span-1) */}
+        <div
+          className={`lg:col-span-1 ${GLASS} rounded-xl p-6 relative overflow-hidden min-h-[240px] flex flex-col justify-between shadow-xl`}
+        >
+          {/* Content */}
+          <div className="relative z-10 flex flex-col h-full justify-between gap-6">
+            <div>
+              <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+                Terima Kasih!
+              </h4>
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                Setiap ulasan sangat berarti bagi tenaga medis kami untuk terus
+                berkembang.
+              </p>
+            </div>
+
+            <div className="bg-primary/20 p-4 rounded-xl border border-primary/30">
+              <div className="flex items-center gap-2 text-primary">
+                <ShieldCheck className="w-5 h-5 shrink-0" />
+                <span className="text-xs font-bold uppercase tracking-wider">
+                  Anonim &amp; Aman
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Decorative watermark */}
+          <Heart
+            className="absolute -right-10 -bottom-10 w-40 h-40 text-slate-900 dark:text-white opacity-10"
+            aria-hidden
+          />
+        </div>
+      </div>
+
+      {/* ── Riwayat Ulasan ── */}
+      <div className="flex flex-col gap-6 pt-4">
+        {/* Section header */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+            <History className="w-6 h-6 text-primary" />
+            Riwayat Ulasan
+          </h2>
+          {feedbackList.length > 3 && (
+            <button
+              onClick={() => setShowAll((v) => !v)}
+              className="text-primary text-sm font-semibold hover:underline transition-colors"
+            >
+              {showAll ? "Sembunyikan" : "Lihat Semua"}
+            </button>
+          )}
+        </div>
+
+        {/* Cards grid */}
+        {feedbackList.length === 0 ? (
+          <div
+            className={`${GLASS} rounded-2xl p-16 flex flex-col items-center justify-center gap-4 text-center`}
+          >
+            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <MessageSquare className="w-7 h-7 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-slate-900 dark:text-slate-100 font-bold text-lg">
+                Belum Ada Ulasan
+              </h3>
+              <p className="text-slate-500 text-sm mt-1">
+                Penilaian yang sudah Anda kirim akan muncul di sini.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {displayList.map((fb) => (
+              <HistoryCard key={fb.id_feedback} fb={fb} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

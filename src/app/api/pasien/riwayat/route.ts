@@ -10,7 +10,7 @@ export async function GET() {
 
         const { data, error } = await (supabase as any)
             .from("rekam_medis")
-            .select("*")
+            .select("*, dokter(nama, spesialisasi), resep(status)")
             .eq("id_pasien", idPasien)
             .order("tanggal_periksa", { ascending: false });
 

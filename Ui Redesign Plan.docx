@@ -1,0 +1,388 @@
+# Rencana Redesign UI/UX Klinik Sehat Selalu (Stitch)
+
+Dokumen ini berisi kumpulan **Prompt** dan **ASCII Wireframe** yang dirancang khusus untuk diumpankan ke **StitchMCP** atau generator UI AI lainnya. Tujuannya adalah merombak (polish) tampilan seluruh halaman aplikasi agar terlihat jauh lebih modern, premium, interaktif (dengan efek transisi, hover, animasi), namun tetap fungsional.
+
+---
+
+## 🎨 1. Prompt Global & Tema Eksekusi Utama
+Gunakan prompt ini sebagai instruksi dasar / _style guide_ di setiap generasi halaman:
+
+```text
+PROMPT GLOBAL:
+- Aesthetics: Gunakan gaya "Bento Box" modern atau "Glassmorphism" yang elegan.
+- Typography: Gunakan font Sans-serif modern seperti "Inter", "Plus Jakarta Sans", atau "Outfit".
+- Colors: Jangan gunakan warna dasar generik. Gunakan palet harmonis: Primary (Royal Blue/Indigo), Surface (Off-white/Slightly gray tint), Muted (Slate-gray). Tambahkan dark mode yang sleek (Deep Navy/Charcoal).
+- Interactions: Tambahkan efek micro-animations pada tombol (scale-up saat hover), transisi mulus pada load halaman (fade-in, slide-up), skeleton loaders saat memuat data, dan glow effect halus pada border kartu aktif.
+- Components: Gunakan rounded corners membulat (xl atau 2xl), bayangan (soft drop-shadows) yang halus, dan pisahkan antar-kartu (cards) dengan padding yang bernapas (spacious).
+```
+
+---
+
+## 👤 2. Ruang Pasien (Dashboard & Tagihan)
+Fokus: Ramah pengguna, menenangkan, menunjukkan status yang jelas dengan visualisasi yang indah.
+
+### ASCII Wireframe
+```text
++-------------------------------------------------------------+
+|  [Logo] Klinik Sehat Selalu       [Notifikasi] [Foto Profil]|
++-------------------------------------------------------------+
+|                                                             |
+|  Selamat Pagi, Dian Budi! 👋                                |
+|  Semoga hari Anda menyenangkan dan sehat selalu.            |
+|                                                             |
+|  +-------------------------+  +--------------------------+  |
+|  | KARTU ANTRIAN HARI INI  |  | STATUS TAGIHAN MEDIS     |  |
+|  | +---------------------+ |  | +----------------------+ |  |
+|  | | Nomor: A012         | |  | | Invoice #11          | |  |
+|  | | Status: Dipanggil 🟢| |  | | Total: Rp 110.000    | |  |
+|  | | Ruang: Dokter Umum  | |  | | Status: [Belum Bayar]| |  |
+|  | +---------------------+ |  | +----------------------+ |  |
+|  |   [Buka Antrian (->)]   |  |     [Bayar Sekarang]     |  |
+|  +-------------------------+  +--------------------------+  |
+|                                                             |
+|  +-------------------------------------------------------+  |
+|  | MENU CEPAT (Bento Grid Style)                         |  |
+|  | +------------+ +------------+ +------------+          |  |
+|  | | 🧑 Profil  | | 📝 Daftar  | | 📚 Riwayat |          |  |
+|  | | Update data| | Konsultasi | | Medis Anda |          |  |
+|  | +------------+ +------------+ +------------+          |  |
+|  +-------------------------------------------------------+  |
++-------------------------------------------------------------+
+```
+
+### Prompt Stitch
+```text
+Buatkan halaman Dashboard Pasien berbasis Next.js dan Tailwind CSS. Struktur halamannya harus mengikuti wireframe ASCII yang diberikan, mencakup header sapaan, dan layout 2 kolom di bagian atas (Kartu Antrian aktif dan Kartu Tagihan mendesak), diikuti menu bento-grid di bawahnya.
+
+Wajib menyertakan:
+1. Kartu dengan efek hover `hover:-translate-y-1 hover:shadow-xl transition-all duration-300`.
+2. Badge status (seperti "Dipanggil" dan "Belum Bayar") dengan varian warna soft-pastel (misal: bg-amber-100 text-amber-800) dan pulse animation jika butuh tindakan.
+3. Gunakan icon dari Lucide React (Stethoscope, FileText, User).
+4. Buat animasi on-load masuk (fade in bottom) secara bertahap / staggered.
+```
+
+---
+
+## 🩺 3. Ruang Dokter (Pemeriksaan & Resep)
+Fokus: Efisien, scan-able, bebas gangguan. Dokter harus bisa melihat keluhan sekilas.
+
+### ASCII Wireframe
+```text
++-------------------------------------------------------------+
+| ☰ Menu Dokter                 [Mode Malam] [Profil Dokter]  |
++-------------------------------------------------------------+
+|                                                             |
+|  [< Kembali] Detail Pemeriksaan Pasien                      |
+|                                                             |
+|  +-------------------------------------------------------+  |
+|  | IDENTITAS & VITAL SIGNS (Card Sticky/Fixed Top)       |  |
+|  | ----------------------------------------------------- |  |
+|  | Pasien: Ahmad | Umur: 32th | TD: 120/80 | Suhu: 36.5  |  |
+|  | ⚠️ KELUHAN: Sakit kepala hebat sejak dua hari lalu.   |  |
+|  +-------------------------------------------------------+  |
+|                                                             |
+|  +-------------------------+  +--------------------------+  |
+|  | HASIL PEMERIKSAAN       |  | BERIKAN RESEP OBAT       |  |
+|  |                         |  |                          |  |
+|  | Diagnosa:               |  | Pilih Obat: [Dropdown V] |  |
+|  | [_____________________] |  | Stok tersisa: 50 | 💊    |  |
+|  |                         |  |                          |  |
+|  | Rujukan (Opsional):     |  | Jml: [__] Dosis: [_____] |  |
+|  | [_____________________] |  | [+ Tambah Opsi Lainnya]  |  |
+|  |                         |  |                          |  |
+|  |        [Simpan]         |  |      [Buat Resep]        |  |
+|  +-------------------------+  +--------------------------+  |
++-------------------------------------------------------------+
+```
+
+### Prompt Stitch
+```text
+Buatkan antarmuka halaman Pemeriksaan Dokter. Layout layar terbagi secara efisien: Card Identitas dan Keluhan berada memanjang di bagian atas agar selalu terlihat (berikan sedikit efek glassmorphism latar belakangnya). Di bawahnya, belah layar (split screen) menjadi 2 panel kiri-kanan: Panel Kiri untuk input Diagnosa (Textarea dengan focus ring biru glowing modern) dan Panel Kanan untuk meracik Resep Obat.
+
+Wajib menyertakan:
+1. Animasi saat menambahkan resep obat ke daftar list (slide/fade in list item).
+2. Input field yang premium: border transparan, bg-muted, hanya memunculkan border brand color saat `:focus-within`.
+3. Peringatan status obat (Stok Menipis) diberi gaya yang mencolok namun halus (misal: dot merah kecil berkedip).
+```
+
+---
+
+## 💊 4. Ruang Apoteker (Resep Masuk)
+Fokus: Manajemen antrian resep yang padat dengan indikator visual ("Tolak" / "Proses").
+
+### ASCII Wireframe
+```text
++-------------------------------------------------------------+
+| ☰ Menu Apoteker                           [Profil Apoteker] |
++-------------------------------------------------------------+
+|                                                             |
+|  Antrian Resep (3 Pending)         [Filter V] [Urutkan V]   |
+|                                                             |
+|  +-------------------------------------------------------+  |
+|  | #RSP-12 | Pasien: Kaesar | 10:45 AM | Status: [PENDING] |  |
+|  | ----------------------------------------------------- |  |
+|  | 1. Paracetamol 500mg - 3 x 1 tab (10)                 |  |
+|  | 2. Amoxicillin       - 3 x 1 tab (10)                 |  |
+|  |                                                       |  |
+|  |                            [X Tolak]  [-> Proses Resep] |  |
+|  +-------------------------------------------------------+  |
+|                                                             |
+|  +-------------------------------------------------------+  |
+|  | #RSP-11 | Pasien: Dian   | 10:30 AM | Status: [PROSES]  |  |
+|  | ----------------------------------------------------- |  |
+|  | 1. Sanmol Sirup        - 3 x 1 sdk (1)                |  |
+|  |                                                       |  |
+|  |                            [X Tolak]  [V Tandai Selesai]|  |
+|  +-------------------------------------------------------+  |
++-------------------------------------------------------------+
+```
+
+### Prompt Stitch
+```text
+Buatkan halaman Manajemen Resep Masuk Apoteker berupa list kartu-kartu tugas. Tampilannya harus modern menyerupai Kanban stack card vertikal. 
+
+Wajib menyertakan:
+1. Kartu resep memiliki layout yang bersih dengan garis pemisah (divider) tipis antara info pasien dan rincian obat.
+2. Tombol aksi ditempatkan merata di kanan bawah: Tombol "Tolak" menggunakan warna Destructive (gaya Outline yang merubah latar menjadi merah transparan saat hover), dan tombol Aksi Utama ("Proses" / "Selesai") bernuansa warna solid Primary dengan efek ripple / hover scale.
+3. List transisi animasi. Saat status resep diubah, kartu resep animasikan menghilang ke kanan sebelum keluar dari DOM agar terasa *satisfying*.
+```
+
+---
+
+## 💵 5. Ruang Kasir (Konfirmasi Tagihan Pasien)
+Fokus: Transparansi data finansial, aman, bersih (clean look) agar menyerupai PoS (Point of Sales) modern.
+
+### ASCII Wireframe
+```text
++-------------------------------------------------------------+
+| ☰ Menu Kasir                                  [Profil Kasir]|
++-------------------------------------------------------------+
+|                                                             |
+|  Transaksi Mendesak                        [Total: Rp...]   |
+|                                                             |
+|  +-------------------------+  +--------------------------+  |
+|  | Daftar Tagihan Draft    |  | Detail Transaksi Aktif   |  |
+|  | ----------------------- |  | ------------------------ |  |
+|  | Dian B.   [Rp 110.000] >|  | Invoice #11 - Dian Budi  |  |
+|  | Kaesar A. [Rp 150.000] >|  |                          |  |
+|  |                         |  | Jasa Medis    Rp  50.000 |  |
+|  |                         |  | Paracetamol   Rp  60.000 |  |
+|  |                         |  | ------------------------ |  |
+|  |                         |  | Total         Rp 110.000 |  |
+|  |                         |  |                          |  |
+|  |                         |  | Opsi Kasir:              |  |
+|  |                         |  | [Tunai] [Debit] [Kredit] |  |
+|  |                         |  |                          |  |
+|  |                         |  |     [KONFIRMASI BAYAR]   |  |
+|  +-------------------------+  +--------------------------+  |
++-------------------------------------------------------------+
+```
+
+### Prompt Stitch
+```text
+Buatkan antarmuka Point of Sales (Kasir) Klinik. Terdiri atas dua panel. Panel kiri memuat daftar ringkas pasien yang tagihannya masih "Draft / Belum Bayar" bergaya list-group. Panel kanan menampilkan rincian Struk Pembayaran / Invoice secara mendetail mirip layout struk asli dengan huruf Monospace untuk angkanya.
+
+Wajib menyertakan:
+1. Mode selected state pada panel kiri: Kartu di panel kiri berubah warna latar menjadi slightly Primary dan font menonjol jika sedang dipilih untuk dilihat panel kanannya.
+2. Pilihan metode pembayaran (Tunai, Debit, Kredit) menggunakan segmented control atau radio group card (clickable boxes beranimasi).
+3. Tombol besar "Konfirmasi Bayar" yang memiliki gradient warna hijau zamrud (emerald) dan animasi bersinar (shine effect) yang melewati tombol tersebut secara berulang.
+```
+
+## 🌐 6. Landing Page (Halaman Utama Publik)
+Fokus: Kesan pertama yang menakjubkan, memupuk kepercayaan, membimbing aksi (Call to Action).
+
+### ASCII Wireframe
+```text
++-------------------------------------------------------------+
+| [Logo] Klinik Sehat                  [Beranda] [Layanan] [Masuk]|
++-------------------------------------------------------------+
+|                                                             |
+|       ✨ Pelayanan Kesehatan Modern dalam Genggaman ✨      |
+|                                                             |
+|    Daftar antrian, pantau rekam medis, dan tebus tagihan    |
+|    tanpa ribet langsung dari perangkat Anda.                |
+|                                                             |
+|         [DAFTAR SEKARANG ->]        [Pelajari Lebih Lanjut] |
+|                                                             |
+|  +-------------------------------------------------------+  |
+|  | Fitur Unggulan Kami:                                  |  |
+|  | +-----------+  +-----------+  +-----------+           |  |
+|  | | 🕒 Antrian|  | 🩺 Medis  |  | 💳 Pembayaran |       |  |
+|  | | Real-time |  | Terpadu   |  | Otomatis    |         |  |
+|  | +-----------+  +-----------+  +-----------+           |  |
+|  +-------------------------------------------------------+  |
++-------------------------------------------------------------+
+| [Footer] © 2026 Klinik Sehat Selalu. All Rights Reserved.   |
++-------------------------------------------------------------+
+```
+
+### Prompt Stitch
+```text
+Buatkan Landing Page pemasaran untuk sebuah klinik kesehatan modern. Beri kesan premium ala startup decacorn.
+
+Wajib menyertakan:
+1. Hero Section memukau: Gunakan background gradient-mesh halus (kombinasi indigo dan violet) atau blur blobs. Teks utama harus berukuran besar (Hero Typography) bergaya bold dengan subtle text-shadow.
+2. Call to Action (CTA) Button "Daftar Sekarang" yang bersinar (glow effect) beranimasi *pulse* lambat.
+3. Bagian "Fitur Unggulan" berupa tiga buah kartu berlapis *Glassmorphism* yang memiliki efek float/melayang (hover:-translate-y-2) disertai ilustrasi SVG atau icon tebal.
+4. Buat halaman fully responsive agar cantik dari layar resolusi besar hingga mobile.
+```
+
+---
+
+## 👑 7. Ruang Admin (Dashboard Rekap & Manajemen)
+Fokus: Pengawasan *helicopter-view*, data mudah dicerna, aksesibilitas cepat.
+
+### ASCII Wireframe
+```text
++-------------------------------------------------------------+
+| ☰ Menu Admin (Sidebar)                 [Pencarian] [Profil] |
++-------------------------------------------------------------+
+|                                                             |
+|  Ringkasan Operasional Hari Ini                             |
+|                                                             |
+|  +---------+ +---------+ +---------+ +---------+            |
+|  | Pasien  | | Dokter  | | Menunggu| | Lunas   |            |
+|  |  124    | |   8     | |   12    | | Rp 4.2M |            |
+|  | [+5%] ^ | | [Tetap] | | [-2%] v | | [+12%]^ |            |
+|  +---------+ +---------+ +---------+ +---------+            |
+|                                                             |
+|  +-------------------------------------------------------+  |
+|  | Tabel Pendaftaran Terbaru                             |  |
+|  | ----------------------------------------------------- |  |
+|  | #  | Nama       | Poli Tuju    | Status    | Aksi     |  |
+|  | ----------------------------------------------------- |  |
+|  | 1  | Dian Budi  | Dokter Umum  | Menunggu  | [Edit]   |  |
+|  | 2  | Kaesar A.  | Gigi         | Selesai   | [Edit]   |  |
+|  | ----------------------------------------------------- |  |
+|  |                 [Lihat Semua Pendaftaran]             |  |
+|  +-------------------------------------------------------+  |
++-------------------------------------------------------------+
+```
+
+### Prompt Stitch
+```text
+Buatkan Dashboard Statistik untuk Super Admin. Desain harus condong ke arah "Analytics Dashboard" modern yang bersih, informatif, dan tidak sesak (gunakan negative-space/whitespace).
+
+Wajib menyertakan:
+1. Empat kartu "Summary Metrics" di baris paling atas. Masing-masing memuat angka tebal, ikon *background* yang samar di pojok kanan, serta indikator tren persentase hijau/merah berbentuk pill kecil. Hover di kartu memunculkan *border-glow*.
+2. Tabel Data modern: baris tabel bergantian (striped) secara sangat halus, atau hanya menampilkan border bottom. Arahkan kursor ke sebuah baris akan menyebabkan baris tersebut ter *highlight* soft-primary.
+3. Tombol aksi [Edit] bergaya ghost-button yang hanya menonjol saat baris tabel sedang disorot.
+```
+
+---
+
+## 🩺 8. Ruang Perawat (Antrian & Pemeriksaan Awal)
+Fokus: Cepat, orientasi tindakan (action-oriented), input data yang minim hambatan.
+
+### ASCII Wireframe
+```text
++-------------------------------------------------------------+
+| ☰ Menu Perawat               [Cari Pasien] [Profil Perawat] |
++-------------------------------------------------------------+
+|                                                             |
+|  Antrian Pasien Saat Ini                                    |
+|                                                             |
+|  +-------------------------------------------------------+  |
+|  | #A012 | Dian Budi        | Status: [DIPANGGIL]        |  |
+|  | ----------------------------------------------------- |  |
+|  | Umur: 45 Th | BB: 65 Kg | Keluhan: Batuk Pilek        |  |
+|  |                                                       |  |
+|  |                 [Panggil Ulang] [Mulai Pemeriksaan >] |  |
+|  +-------------------------------------------------------+  |
+|                                                             |
+|  +-------------------------------------------------------+  |
+|  | #A013 | Kaesar Adam      | Status: [MENUNGGU]         |  |
+|  | ----------------------------------------------------- |  |
+|  | Umur: 28 Th | BB: -     | Keluhan: Sakit Gigi         |  |
+|  |                                                       |  |
+|  |                 [Panggil Pasien]                      |  |
+|  +-------------------------------------------------------+  |
++-------------------------------------------------------------+
+```
+
+### Prompt Stitch
+```text
+Buatkan halaman Antrian & Pemeriksaan untuk Perawat. Desainnya harus menonjolkan urutan aktivitas yang *action-oriented*.
+
+Wajib menyertakan:
+1. Kartu pasien antrian teratas (yang sedang dipanggil) harus memiliki highlight border atau background slight color untuk menandakan prioritas.
+2. Label status antrian ("DIPANGGIL", "MENUNGGU", "SELESAI") menggunakan *soft UI badging* dengan dot indicator warna.
+3. Tombol aksi utama (seperti "Panggil Pasien" atau "Mulai Pemeriksaan") diberikan proporsi yang lebih lebar atau mencolok (solid primary color).
+```
+
+---
+
+---
+
+## 🗂️ 9. Halaman Sekunder (Riwayat, Profil, Inventaris, Laporan)
+Dari hasil pengecekan struktur kode, terdapat banyak halaman pendukung seperti: `Pendaftaran`, `Riwayat`, `Profil`, `Stok Obat`, `Jadwal`, dan `Laporan` yang digunakan lintas *role* (Pasien, Admin, Dokter, Perawat, Apoteker). Gunakan prompt generik ini untuk konsistensi sistem desain:
+
+### Prompt Stitch (Untuk Tabel Data & List Riwayat)
+```text
+Buatkan halaman [NAMA HALAMAN, misal: Riwayat Medis / Manajemen Stok] berbasis Next.js. Desain harus fokus pada Master-Detail Data Table yang rapi dan lapang.
+
+Wajib menyertakan:
+1. Panel filter modern di bagian atas tabel (menggunakan drop-down bergaya badge dan search bar transparan ber-icon).
+2. Tabel dengan gaya "Card-Based Rows" (setiap baris tabel dibalut dalam kartu tersendiri dengan shadow halus) atau tabel klasik dengan garis pemisah tipis horizontal saja.
+3. Pagination beranimasi di bagian bawah tabel.
+4. Gunakan status color-coding (Hijau=Sukses/Ada, Kuning/Jeruk=Menipis/Pending, Merah=Batal/Habis).
+```
+
+### Prompt Stitch (Untuk Form Pendaftaran & Edit Profil)
+```text
+Buatkan halaman [NAMA HALAMAN, misal: Pendaftaran Pasien / Profil Pengguna] berbasis Next.js. Form harus terlihat modern, tidak kaku, dan membimbing mata pengguna.
+
+Wajib menyertakan:
+1. Form dibungkus dalam kontainer putih / card di tengah dengan soft drop shadow.
+2. Input field menggunakan gaya Floating Label atau Placeholder beranimasi saat `:focus`.
+3. Validasi error menggunakan warna Red-Soft dan transisi *shake* ringan saat disubmit dalam keadaan kosong.
+4. Gunakan skeleton loader saat data profil sedang di-fetch.
+```
+
+---
+
+## 🔒 10. Halaman Autentikasi (Masuk & Daftar)
+Fokus: Cepat, tepercaya, menarik secara visual (tidak sekadar form putih di tengah layar kosong).
+
+### ASCII Wireframe
+```text
++-------------------------------------------------------------+
+|                                                             |
+|  [ Gambar Pemandangan Estetik / Latar Gradien 3D Area Kiri] |
+|                                                             |
+|  +---------------------------+  +------------------------+  |
+|  |                           |  |                        |  |
+|  |         ✨✨✨            |  |  Selamat Datang        |  |
+|  |      Ilustrasi Medis      |  |  Kembali! 👋           |  |
+|  |     Atau Pola Abstrak     |  |                        |  |
+|  |        Premium (SVG)      |  |  [Email        ]       |  |
+|  |                           |  |  [Kata Sandi O ]       |  |
+|  |                           |  |                        |  |
+|  |                           |  |  [ Lupa Sandi? ]       |  |
+|  |                           |  |  [   MASUK     ]       |  |
+|  |                           |  |                        |  |
+|  |                           |  |  Belum punya akun?     |  |
+|  |                           |  |  [Daftar Sekarang]     |  |
+|  +---------------------------+  +------------------------+  |
+|                                                             |
++-------------------------------------------------------------+
+```
+
+### Prompt Stitch
+```text
+Buatkan halaman Login dan Register Otentikasi bergaya Split-Screen / Two-Column (layar terbelah). Jangan buat sekadar halaman dengan background polos.
+
+Wajib menyertakan:
+1. Panel sisi kiri (atau kanan) berisi visual yang atraktif berupa gradient mesh, foto bertema medis beresolusi tinggi yang digelapkan (overlay), atau kumpulan ilustrasi SVG yang menarik.
+2. Panel sebelahnya merupakan wadah container form Login/Register dengan spacing yang lapang.
+3. Input field harus elegan, misal dengan default state ber-background abu muda (gray-50) tanpa border tegas, dan ketika `:focus` memunculkan border berwarna Primary (Ringkas).
+4. Tambahkan animasi fade-in yang lembut untuk tampilan seluruh form saat halaman baru diload.
+```
+
+---
+
+## 💻 Cara Mengeksekusi Plan Ini
+Karena saat ini Anda ingin mempolish semua halaman melalui _Google Stitch_, langkah terbaiknya adalah:
+1. Salin **Prompt** spesifik per-halaman secara satu-persatu di interface Stitch (atau lewat MCP jika diinginkan satu-satu).
+2. Lampirkan **ASCII Wireframe** ke dalam chat Stitch untuk mengendalikan struktur posisi UI agar tidak melenceng.
+3. Setelah Stitch menghasilkan varian UI, minta kode React (Next.js/Tailwind) dan timpa file `page.tsx` pada masing-masing sub-folder `(dashboard)`.
